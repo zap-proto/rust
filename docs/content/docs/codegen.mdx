@@ -23,7 +23,7 @@ zapc = "0.25"
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .file("src/schema.zap")
         .run()
         .expect("schema compiler command");
@@ -45,7 +45,7 @@ use schema_zap::my_struct;
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .file("src/messages.zap")
         .file("src/services.zap")
         .run()
@@ -59,7 +59,7 @@ When schemas import other schemas:
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .src_prefix("schemas")
         .file("schemas/main.zap")
         .import_path("schemas")
@@ -74,7 +74,7 @@ By default, code generates to `$OUT_DIR`. Override with:
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .file("schema.zap")
         .output_path("src/generated")
         .run()
@@ -88,7 +88,7 @@ For publishing crates with generated code:
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .file("schema.zap")
         .crate_prefix("mycrate")
         .run()
@@ -289,7 +289,7 @@ With build.rs:
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .src_prefix("schemas")
         .import_path("schemas")
         .file("schemas/messages.zap")

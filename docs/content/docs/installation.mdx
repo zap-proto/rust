@@ -114,7 +114,7 @@ The `build.rs` file compiles schemas at build time:
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .file("src/schema.zap")
         .run()
         .expect("schema compiler command");

@@ -74,7 +74,7 @@ Create `build.rs` in the project root:
 
 ```rust
 fn main() {
-    zapc::CompilerCommand::new()
+    zap::CompilerCommand::new()
         .file("src/addressbook.zap")
         .run()
         .expect("compiling schema");
