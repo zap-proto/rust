@@ -20,7 +20,7 @@ futures = "0.3"
 
 ## Defining an Interface
 
-```capnp
+```protobuf
 @0x9663f4dd604afa35;
 
 interface HelloWorld {
@@ -143,7 +143,7 @@ pub async fn run_client(
 
 Interfaces can accept and return other interfaces:
 
-```capnp
+```protobuf
 interface Callback {
     call @0 (value :Int32) -> ();
 }
@@ -200,7 +200,7 @@ let subscription: subscription::Client = response.get()?.get_subscription()?;
 
 ZAP supports promise pipelining - calling methods on results before they arrive:
 
-```capnp
+```protobuf
 interface UserService {
     getUser @0 (id :UInt64) -> (user :User);
 }

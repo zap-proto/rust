@@ -100,7 +100,7 @@ fn main() {
 
 For a schema:
 
-```capnp
+```protobuf
 @0x9eb32e19f86ee174;
 
 struct Person {
@@ -173,7 +173,7 @@ fn init_people(mut list: address_book::Builder<'_>) {
 
 For a union:
 
-```capnp
+```protobuf
 struct Shape {
   union {
     circle @0 :Float32;
@@ -201,7 +201,7 @@ pub mod shape {
 
 For an interface:
 
-```capnp
+```protobuf
 interface Calculator {
   add @0 (a :Int32, b :Int32) -> (result :Int32);
 }

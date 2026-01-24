@@ -11,7 +11,7 @@ ZAP schemas define your data structures and interfaces. The schema compiler gene
 
 Every schema file starts with a unique file ID:
 
-```capnp
+```protobuf
 @0x9eb32e19f86ee174;
 ```
 
@@ -37,7 +37,7 @@ capnp id
 
 Structs contain numbered fields:
 
-```capnp
+```protobuf
 struct Person {
   id @0 :UInt32;
   name @1 :Text;
@@ -49,7 +49,7 @@ Field numbers are permanent - never reuse or change them. This enables protocol 
 
 ### Default Values
 
-```capnp
+```protobuf
 struct Config {
   timeout @0 :UInt32 = 30;
   enabled @1 :Bool = true;
@@ -59,7 +59,7 @@ struct Config {
 
 ### Nested Structs
 
-```capnp
+```protobuf
 struct Person {
   name @0 :Text;
 
@@ -72,7 +72,7 @@ struct Person {
 
 ## Enums
 
-```capnp
+```protobuf
 enum Color {
   red @0;
   green @1;
@@ -97,7 +97,7 @@ Always handle `NotInSchema` for forward compatibility.
 
 Tagged unions group mutually exclusive fields:
 
-```capnp
+```protobuf
 struct Shape {
   union {
     circle @0 :Float32;      # radius
@@ -128,7 +128,7 @@ match shape.which() {
 
 ### Named Unions
 
-```capnp
+```protobuf
 struct Person {
   name @0 :Text;
 
@@ -143,7 +143,7 @@ struct Person {
 
 ## Lists
 
-```capnp
+```protobuf
 struct AddressBook {
   people @0 :List(Person);
   tags @1 :List(Text);
@@ -169,7 +169,7 @@ people.get(1).set_name("Bob");
 
 Interfaces define RPC methods:
 
-```capnp
+```protobuf
 interface Calculator {
   add @0 (a :Int32, b :Int32) -> (result :Int32);
   subtract @1 (a :Int32, b :Int32) -> (result :Int32);
@@ -180,7 +180,7 @@ interface Calculator {
 
 Interfaces can pass object references:
 
-```capnp
+```protobuf
 interface Callback {
   call @0 (value :Int32) -> ();
 }
@@ -192,7 +192,7 @@ interface Publisher {
 
 ## Generics
 
-```capnp
+```protobuf
 struct Pair(Left, Right) {
   left @0 :Left;
   right @1 :Right;
@@ -205,7 +205,7 @@ struct IntStringPair {
 
 ## Imports
 
-```capnp
+```protobuf
 using Common = import "common.capnp";
 
 struct MyStruct {
@@ -217,7 +217,7 @@ struct MyStruct {
 
 Custom metadata:
 
-```capnp
+```protobuf
 annotation myAnnotation(struct, field) :Text;
 
 struct Person {
@@ -245,7 +245,7 @@ ZAP schemas evolve safely:
 
 ### Adding Fields
 
-```capnp
+```protobuf
 struct Person {
   id @0 :UInt32;
   name @1 :Text;
