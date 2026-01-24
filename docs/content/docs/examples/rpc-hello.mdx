@@ -18,14 +18,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-capnp = "0.25"
-capnp-rpc = "0.25"
+zap = "0.25"
+zap-rpc = "0.25"
 tokio = { version = "1", features = ["rt", "net", "io-util", "macros"] }
 tokio-util = { version = "0.7", features = ["compat"] }
 futures = "0.3"
 
 [build-dependencies]
-capnpc = "0.25"
+zapc = "0.25"
 ```
 
 ### Schema: hello_world.zap
@@ -50,7 +50,7 @@ interface HelloWorld {
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .file("hello_world.zap")
         .run()
         .expect("compiling schema");
@@ -60,10 +60,10 @@ fn main() {
 ## Server Implementation
 
 ```rust
-capnp::generated_code!(mod hello_world_capnp);
+zap::generated_code!(mod hello_world_zap);
 
-use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
-use hello_world_capnp::hello_world;
+use zap_rpc::{rpc_twoparty_zap, twoparty, RpcSystem};
+use hello_world_zap::hello_world;
 use futures::AsyncReadExt;
 use std::net::ToSocketAddrs;
 use std::rc::Rc;
@@ -75,7 +75,7 @@ impl hello_world::Server for HelloWorldImpl {
         self: Rc<Self>,
         params: hello_world::SayHelloParams,
         mut results: hello_world::SayHelloResults,
-    ) -> Result<(), capnp::Error> {
+    ) -> Result<(), zap::Error> {
         // Extract the name from the request
         let request = params.get()?.get_request()?;
         let name = request.get_name()?.to_str()?;
@@ -101,7 +101,7 @@ pub async fn run_server(addr: &str) -> Result<(), Box<dyn std::error::Error>> {
 
             // Create the capability
             let hello_world_client: hello_world::Client =
-                capnp_rpc::new_client(HelloWorldImpl);
+                zap_rpc::new_client(HelloWorldImpl);
 
             loop {
                 let (stream, peer) = listener.accept().await?;
@@ -117,7 +117,7 @@ pub async fn run_server(addr: &str) -> Result<(), Box<dyn std::error::Error>> {
                 let network = twoparty::VatNetwork::new(
                     futures::io::BufReader::new(reader),
                     futures::io::BufWriter::new(writer),
-                    rpc_twoparty_capnp::Side::Server,
+                    rpc_twoparty_zap::Side::Server,
                     Default::default(),
                 );
 
@@ -159,14 +159,14 @@ pub async fn run_client(addr: &str, name: &str) -> Result<(), Box<dyn std::error
             let network = Box::new(twoparty::VatNetwork::new(
                 futures::io::BufReader::new(reader),
                 futures::io::BufWriter::new(writer),
-                rpc_twoparty_capnp::Side::Client,
+                rpc_twoparty_zap::Side::Client,
                 Default::default(),
             ));
 
             // Create RPC system and bootstrap the client
             let mut rpc_system = RpcSystem::new(network, None);
             let hello_world: hello_world::Client =
-                rpc_system.bootstrap(rpc_twoparty_capnp::Side::Server);
+                rpc_system.bootstrap(rpc_twoparty_zap::Side::Server);
 
             // Spawn the RPC system
             tokio::task::spawn_local(rpc_system);
@@ -245,7 +245,7 @@ Server replied: Hello, World!
 
 ### LocalSet Requirement
 
-`capnp-rpc` uses `Rc` internally, so tasks must run on a `LocalSet`:
+`zap-rpc` uses `Rc` internally, so tasks must run on a `LocalSet`:
 
 ```rust
 tokio::task::LocalSet::new()
@@ -270,13 +270,13 @@ let compat_stream = tokio_stream.compat();
 From a server implementation:
 
 ```rust
-let client: hello_world::Client = capnp_rpc::new_client(HelloWorldImpl);
+let client: hello_world::Client = zap_rpc::new_client(HelloWorldImpl);
 ```
 
 From bootstrapping:
 
 ```rust
-let client: hello_world::Client = rpc_system.bootstrap(rpc_twoparty_capnp::Side::Server);
+let client: hello_world::Client = rpc_system.bootstrap(rpc_twoparty_zap::Side::Server);
 ```
 
 ### Request/Response Pattern
@@ -303,7 +303,7 @@ impl hello_world::Server for HelloWorldImpl {
         self: Rc<Self>,         // Self is wrapped in Rc
         params: ...,            // Request parameters
         mut results: ...,       // Response builder
-    ) -> Result<(), capnp::Error> {
+    ) -> Result<(), zap::Error> {
         // Implementation
         Ok(())
     }
@@ -315,9 +315,9 @@ impl hello_world::Server for HelloWorldImpl {
 Return errors from server methods:
 
 ```rust
-async fn say_hello(...) -> Result<(), capnp::Error> {
+async fn say_hello(...) -> Result<(), zap::Error> {
     if name.is_empty() {
-        return Err(capnp::Error::failed("name cannot be empty".into()));
+        return Err(zap::Error::failed("name cannot be empty".into()));
     }
     // ...
 }

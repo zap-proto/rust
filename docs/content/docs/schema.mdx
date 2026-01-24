@@ -18,7 +18,7 @@ Every schema file starts with a unique file ID:
 Generate new IDs with:
 
 ```bash
-capnp id
+zap id
 ```
 
 ## Primitive Types
@@ -30,8 +30,8 @@ capnp id
 | `Int8/16/32/64` | `i8/i16/i32/i64` |
 | `UInt8/16/32/64` | `u8/u16/u32/u64` |
 | `Float32/64` | `f32/f64` |
-| `Text` | `capnp::text::Reader<'a>` |
-| `Data` | `capnp::data::Reader<'a>` |
+| `Text` | `zap::text::Reader<'a>` |
+| `Data` | `zap::data::Reader<'a>` |
 
 ## Structs
 
@@ -87,7 +87,7 @@ match color {
     Ok(Color::Red) => { ... }
     Ok(Color::Green) => { ... }
     Ok(Color::Blue) => { ... }
-    Err(capnp::NotInSchema(_)) => { ... }
+    Err(zap::NotInSchema(_)) => { ... }
 }
 ```
 
@@ -122,7 +122,7 @@ match shape.which() {
         let h = rect.get_height();
     }
     Ok(Nothing(())) => { ... }
-    Err(capnp::NotInSchema(_)) => { ... }
+    Err(zap::NotInSchema(_)) => { ... }
 }
 ```
 

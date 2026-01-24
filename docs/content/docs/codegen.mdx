@@ -1,11 +1,11 @@
 ---
 title: Code Generation
-description: Generating Rust code from ZAP schemas using capnpc
+description: Generating Rust code from ZAP schemas using zapc
 ---
 
 # Code Generation
 
-The `capnpc` crate generates Rust code from ZAP schema files. This happens at build time via `build.rs`.
+The `zapc` crate generates Rust code from ZAP schema files. This happens at build time via `build.rs`.
 
 ## Basic Setup
 
@@ -13,17 +13,17 @@ The `capnpc` crate generates Rust code from ZAP schema files. This happens at bu
 
 ```toml
 [dependencies]
-capnp = "0.25"
+zap = "0.25"
 
 [build-dependencies]
-capnpc = "0.25"
+zapc = "0.25"
 ```
 
 ### build.rs
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .file("src/schema.zap")
         .run()
         .expect("schema compiler command");
@@ -34,9 +34,9 @@ fn main() {
 
 ```rust
 // In lib.rs or main.rs
-capnp::generated_code!(mod schema_capnp);
+zap::generated_code!(mod schema_zap);
 
-use schema_capnp::my_struct;
+use schema_zap::my_struct;
 ```
 
 ## CompilerCommand Options
@@ -45,7 +45,7 @@ use schema_capnp::my_struct;
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .file("src/messages.zap")
         .file("src/services.zap")
         .run()
@@ -59,7 +59,7 @@ When schemas import other schemas:
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .src_prefix("schemas")
         .file("schemas/main.zap")
         .import_path("schemas")
@@ -74,7 +74,7 @@ By default, code generates to `$OUT_DIR`. Override with:
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .file("schema.zap")
         .output_path("src/generated")
         .run()
@@ -88,7 +88,7 @@ For publishing crates with generated code:
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .file("schema.zap")
         .crate_prefix("mycrate")
         .run()
@@ -118,15 +118,15 @@ pub mod person {
 
     impl<'a> Reader<'a> {
         pub fn get_id(&self) -> u32 { ... }
-        pub fn get_name(&self) -> capnp::Result<capnp::text::Reader<'a>> { ... }
+        pub fn get_name(&self) -> zap::Result<zap::text::Reader<'a>> { ... }
         pub fn has_name(&self) -> bool { ... }
     }
 
     impl<'a> Builder<'a> {
         pub fn get_id(&self) -> u32 { ... }
         pub fn set_id(&mut self, value: u32) { ... }
-        pub fn get_name(&self) -> capnp::Result<capnp::text::Builder<'a>> { ... }
-        pub fn set_name(&mut self, value: impl capnp::text::SetterInput<'a>) { ... }
+        pub fn get_name(&self) -> zap::Result<zap::text::Builder<'a>> { ... }
+        pub fn set_name(&mut self, value: impl zap::text::SetterInput<'a>) { ... }
         pub fn has_name(&self) -> bool { ... }
     }
 }
@@ -139,7 +139,7 @@ pub mod person {
 Readers borrow from the message buffer:
 
 ```rust
-fn process_person<'a>(reader: person::Reader<'a>) -> capnp::Result<&'a str> {
+fn process_person<'a>(reader: person::Reader<'a>) -> zap::Result<&'a str> {
     reader.get_name()?.to_str()
 }
 ```
@@ -192,7 +192,7 @@ pub mod shape {
     }
 
     impl<'a> Reader<'a> {
-        pub fn which(&self) -> Result<Which<'a>, capnp::NotInSchema> { ... }
+        pub fn which(&self) -> Result<Which<'a>, zap::NotInSchema> { ... }
     }
 }
 ```
@@ -222,7 +222,7 @@ pub mod calculator {
             self: std::rc::Rc<Self>,
             params: AddParams,
             results: AddResults,
-        ) -> Result<(), capnp::Error>;
+        ) -> Result<(), zap::Error>;
     }
 }
 ```
@@ -245,12 +245,12 @@ cargo build
 
 ## Troubleshooting
 
-### capnp Not Found
+### zap Not Found
 
-Ensure `capnp` is in PATH:
+Ensure `zap` is in PATH:
 
 ```bash
-which capnp
+which zap
 ```
 
 ### Schema Errors
@@ -289,7 +289,7 @@ With build.rs:
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .src_prefix("schemas")
         .import_path("schemas")
         .file("schemas/messages.zap")

@@ -25,10 +25,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-capnp = "0.25"
+zap = "0.25"
 
 [build-dependencies]
-capnpc = "0.25"
+zapc = "0.25"
 ```
 
 ## Define the Schema
@@ -74,7 +74,7 @@ Create `build.rs` in the project root:
 
 ```rust
 fn main() {
-    capnpc::CompilerCommand::new()
+    zapc::CompilerCommand::new()
         .file("src/addressbook.zap")
         .run()
         .expect("compiling schema");
@@ -86,14 +86,14 @@ fn main() {
 Replace `src/main.rs`:
 
 ```rust
-capnp::generated_code!(mod addressbook_capnp);
+zap::generated_code!(mod addressbook_zap);
 
-use addressbook_capnp::{address_book, person};
-use capnp::serialize_packed;
+use addressbook_zap::{address_book, person};
+use zap::serialize_packed;
 
-fn write_address_book() -> capnp::Result<()> {
+fn write_address_book() -> zap::Result<()> {
     // Create a message builder
-    let mut message = capnp::message::Builder::new_default();
+    let mut message = zap::message::Builder::new_default();
 
     // Initialize the root struct
     let address_book = message.init_root::<address_book::Builder>();
@@ -133,11 +133,11 @@ fn write_address_book() -> capnp::Result<()> {
     serialize_packed::write_message(&mut std::io::stdout(), &message)
 }
 
-fn read_address_book() -> capnp::Result<()> {
+fn read_address_book() -> zap::Result<()> {
     let stdin = std::io::stdin();
     let message = serialize_packed::read_message(
         &mut stdin.lock(),
-        capnp::message::ReaderOptions::new(),
+        zap::message::ReaderOptions::new(),
     )?;
 
     let address_book = message.get_root::<address_book::Reader>()?;
@@ -154,7 +154,7 @@ fn read_address_book() -> capnp::Result<()> {
                 Ok(person::phone_number::Type::Mobile) => "mobile",
                 Ok(person::phone_number::Type::Home) => "home",
                 Ok(person::phone_number::Type::Work) => "work",
-                Err(capnp::NotInSchema(_)) => "UNKNOWN",
+                Err(zap::NotInSchema(_)) => "UNKNOWN",
             };
             println!("  {} phone: {}", type_name, phone.get_number()?.to_str()?);
         }
@@ -172,7 +172,7 @@ fn read_address_book() -> capnp::Result<()> {
             Ok(person::employment::SelfEmployed(())) => {
                 println!("  self-employed");
             }
-            Err(capnp::NotInSchema(_)) => {}
+            Err(zap::NotInSchema(_)) => {}
         }
     }
     Ok(())
@@ -255,4 +255,4 @@ match person.get_employment().which() {
 
 ### Error Handling
 
-All accessors return `capnp::Result<T>` for safe handling of malformed input.
+All accessors return `zap::Result<T>` for safe handling of malformed input.

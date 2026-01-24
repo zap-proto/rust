@@ -12,7 +12,7 @@ ZAP messages are built with `MessageBuilder` and read with `MessageReader`. The 
 ### Create a Message
 
 ```rust
-use capnp::message::Builder;
+use zap::message::Builder;
 
 // Default allocator (heap)
 let mut message = Builder::new_default();
@@ -24,12 +24,12 @@ let root = message.init_root::<my_struct::Builder>();
 ### Allocator Options
 
 ```rust
-use capnp::message::{Builder, HeapAllocator};
+use zap::message::{Builder, HeapAllocator};
 
 // Custom allocator settings
 let allocator = HeapAllocator::new()
     .first_segment_words(1024)
-    .allocation_strategy(capnp::message::AllocationStrategy::FixedSize);
+    .allocation_strategy(zap::message::AllocationStrategy::FixedSize);
 
 let mut message = Builder::new(allocator);
 ```
@@ -39,9 +39,9 @@ let mut message = Builder::new(allocator);
 For no_std or performance-critical paths:
 
 ```rust
-use capnp::message::{Builder, SingleSegmentAllocator};
+use zap::message::{Builder, SingleSegmentAllocator};
 
-let mut buffer = [capnp::Word::NULL; 256];
+let mut buffer = [zap::Word::NULL; 256];
 let allocator = SingleSegmentAllocator::new(&mut buffer);
 let mut message = Builder::new(allocator);
 ```
@@ -51,7 +51,7 @@ let mut message = Builder::new(allocator);
 ### Standard Format
 
 ```rust
-use capnp::serialize;
+use zap::serialize;
 use std::io::Write;
 
 let mut output = Vec::new();
@@ -63,7 +63,7 @@ serialize::write_message(&mut output, &message)?;
 Smaller wire size with simple compression:
 
 ```rust
-use capnp::serialize_packed;
+use zap::serialize_packed;
 
 let mut output = Vec::new();
 serialize_packed::write_message(&mut output, &message)?;
@@ -73,7 +73,7 @@ serialize_packed::write_message(&mut output, &message)?;
 
 ```rust
 use std::fs::File;
-use capnp::serialize;
+use zap::serialize;
 
 let mut file = File::create("data.bin")?;
 serialize::write_message(&mut file, &message)?;
@@ -84,8 +84,8 @@ serialize::write_message(&mut file, &message)?;
 ### Standard Format
 
 ```rust
-use capnp::serialize;
-use capnp::message::ReaderOptions;
+use zap::serialize;
+use zap::message::ReaderOptions;
 
 let data: &[u8] = /* ... */;
 let reader = serialize::read_message_from_flat_slice(
@@ -99,7 +99,7 @@ let root = reader.get_root::<my_struct::Reader>()?;
 ### Packed Format
 
 ```rust
-use capnp::serialize_packed;
+use zap::serialize_packed;
 
 let reader = serialize_packed::read_message(
     &mut std::io::stdin().lock(),
@@ -112,9 +112,9 @@ let reader = serialize_packed::read_message(
 Zero-copy from aligned buffer:
 
 ```rust
-use capnp::serialize;
+use zap::serialize;
 
-let words: &[capnp::Word] = /* aligned buffer */;
+let words: &[zap::Word] = /* aligned buffer */;
 let reader = serialize::read_message_from_words(words, ReaderOptions::new())?;
 ```
 
@@ -125,7 +125,7 @@ let reader = serialize::read_message_from_words(words, ReaderOptions::new())?;
 Prevent denial-of-service from malicious messages:
 
 ```rust
-use capnp::message::ReaderOptions;
+use zap::message::ReaderOptions;
 
 let options = ReaderOptions::new()
     .traversal_limit_in_words(Some(64 * 1024 * 1024));
@@ -163,7 +163,7 @@ let active: bool = person.get_active();
 ### Text Fields
 
 ```rust
-// Returns capnp::text::Reader
+// Returns zap::text::Reader
 let name_reader = person.get_name()?;
 
 // Convert to &str (validates UTF-8)
@@ -269,13 +269,13 @@ for (i, item) in source_list.iter().enumerate() {
 Produce deterministic output:
 
 ```rust
-use capnp::message::Builder;
+use zap::message::Builder;
 
 let mut message = Builder::new_default();
 // ... populate message ...
 
 let canonical = message.canonicalize()?;
-// canonical is a Vec<capnp::Word>
+// canonical is a Vec<zap::Word>
 ```
 
 ## Memory Layout
@@ -283,7 +283,7 @@ let canonical = message.canonicalize()?;
 ZAP uses a segmented memory model:
 
 ```rust
-let segments: &[&[capnp::Word]] = reader.get_segments();
+let segments: &[&[zap::Word]] = reader.get_segments();
 
 for (i, segment) in segments.iter().enumerate() {
     println!("Segment {}: {} words", i, segment.len());
@@ -295,13 +295,13 @@ for (i, segment) in segments.iter().enumerate() {
 ```rust
 use memmap2::Mmap;
 use std::fs::File;
-use capnp::serialize;
+use zap::serialize;
 
 let file = File::open("data.bin")?;
 let mmap = unsafe { Mmap::map(&file)? };
 
 // Ensure alignment
-let words = capnp::Word::slice_from_bytes(&mmap)?;
+let words = zap::Word::slice_from_bytes(&mmap)?;
 let reader = serialize::read_message_from_words(words, ReaderOptions::new())?;
 
 // Data is accessed directly from the memory-mapped file

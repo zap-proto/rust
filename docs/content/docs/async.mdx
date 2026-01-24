@@ -1,18 +1,18 @@
 ---
 title: Async I/O
-description: Asynchronous message reading and writing with capnp-futures
+description: Asynchronous message reading and writing with zap-futures
 ---
 
 # Async I/O
 
-The `capnp-futures` crate provides async support for reading and writing ZAP messages using the Rust async ecosystem.
+The `zap-futures` crate provides async support for reading and writing ZAP messages using the Rust async ecosystem.
 
 ## Dependencies
 
 ```toml
 [dependencies]
-capnp = "0.25"
-capnp-futures = "0.25"
+zap = "0.25"
+zap-futures = "0.25"
 tokio = { version = "1", features = ["rt-multi-thread", "io-util", "net", "fs"] }
 futures = "0.3"
 ```
@@ -22,13 +22,13 @@ futures = "0.3"
 ### From AsyncRead
 
 ```rust
-use capnp_futures::serialize;
-use capnp::message::ReaderOptions;
+use zap_futures::serialize;
+use zap::message::ReaderOptions;
 use tokio::io::AsyncRead;
 
 async fn read_message<R: AsyncRead + Unpin>(
     reader: &mut R,
-) -> capnp::Result<capnp::message::Reader<capnp::serialize::OwnedSegments>> {
+) -> zap::Result<zap::message::Reader<zap::serialize::OwnedSegments>> {
     serialize::read_message(reader, ReaderOptions::new()).await
 }
 ```
@@ -37,9 +37,9 @@ async fn read_message<R: AsyncRead + Unpin>(
 
 ```rust
 use tokio::net::TcpStream;
-use capnp_futures::serialize;
+use zap_futures::serialize;
 
-async fn read_from_socket(stream: &mut TcpStream) -> capnp::Result<()> {
+async fn read_from_socket(stream: &mut TcpStream) -> zap::Result<()> {
     let message = serialize::read_message(stream, Default::default()).await?;
     let root = message.get_root::<my_struct::Reader>()?;
     println!("Received: {}", root.get_name()?.to_str()?);
@@ -52,9 +52,9 @@ async fn read_from_socket(stream: &mut TcpStream) -> capnp::Result<()> {
 ```rust
 use tokio::fs::File;
 use tokio::io::BufReader;
-use capnp_futures::serialize;
+use zap_futures::serialize;
 
-async fn read_from_file(path: &str) -> capnp::Result<()> {
+async fn read_from_file(path: &str) -> zap::Result<()> {
     let file = File::open(path).await?;
     let mut reader = BufReader::new(file);
     let message = serialize::read_message(&mut reader, Default::default()).await?;
@@ -67,13 +67,13 @@ async fn read_from_file(path: &str) -> capnp::Result<()> {
 ### To AsyncWrite
 
 ```rust
-use capnp_futures::serialize;
+use zap_futures::serialize;
 use tokio::io::AsyncWrite;
 
 async fn write_message<W: AsyncWrite + Unpin>(
     writer: &mut W,
-    message: &capnp::message::Builder<impl capnp::message::Allocator>,
-) -> capnp::Result<()> {
+    message: &zap::message::Builder<impl zap::message::Allocator>,
+) -> zap::Result<()> {
     serialize::write_message(writer, message).await
 }
 ```
@@ -82,10 +82,10 @@ async fn write_message<W: AsyncWrite + Unpin>(
 
 ```rust
 use tokio::net::TcpStream;
-use capnp_futures::serialize;
+use zap_futures::serialize;
 
-async fn send_message(stream: &mut TcpStream, name: &str) -> capnp::Result<()> {
-    let mut message = capnp::message::Builder::new_default();
+async fn send_message(stream: &mut TcpStream, name: &str) -> zap::Result<()> {
+    let mut message = zap::message::Builder::new_default();
     let mut root = message.init_root::<my_struct::Builder>();
     root.set_name(name);
 
@@ -98,19 +98,19 @@ async fn send_message(stream: &mut TcpStream, name: &str) -> capnp::Result<()> {
 Process a stream of messages:
 
 ```rust
-use capnp_futures::serialize::read_message;
+use zap_futures::serialize::read_message;
 use tokio::io::AsyncRead;
 
 async fn process_messages<R: AsyncRead + Unpin>(
     mut reader: R,
-) -> capnp::Result<()> {
+) -> zap::Result<()> {
     loop {
         match read_message(&mut reader, Default::default()).await {
             Ok(message) => {
                 let root = message.get_root::<my_struct::Reader>()?;
                 process(root)?;
             }
-            Err(e) if e.kind == capnp::ErrorKind::PrematureEndOfFile => {
+            Err(e) if e.kind == zap::ErrorKind::PrematureEndOfFile => {
                 break; // Clean EOF
             }
             Err(e) => return Err(e),
@@ -130,21 +130,21 @@ ZAP uses `futures::io` traits. Convert tokio types:
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 use futures::AsyncReadExt;
 
-async fn handle_connection(stream: tokio::net::TcpStream) -> capnp::Result<()> {
+async fn handle_connection(stream: tokio::net::TcpStream) -> zap::Result<()> {
     let (reader, writer) = stream.into_split();
 
     // Convert to futures::io types
     let reader = reader.compat();
     let writer = writer.compat_write();
 
-    // Now use with capnp_futures
+    // Now use with zap_futures
     Ok(())
 }
 ```
 
 ### LocalSet for RPC
 
-`capnp-rpc` uses `Rc` internally, requiring `LocalSet`:
+`zap-rpc` uses `Rc` internally, requiring `LocalSet`:
 
 ```rust
 use tokio::task::LocalSet;
@@ -176,16 +176,16 @@ tokio::task::LocalSet::new()
 
 ```toml
 [dependencies]
-capnp-futures = "0.25"
+zap-futures = "0.25"
 async-std = { version = "1", features = ["attributes"] }
 ```
 
 ```rust
 use async_std::net::TcpStream;
-use capnp_futures::serialize;
+use zap_futures::serialize;
 
 #[async_std::main]
-async fn main() -> capnp::Result<()> {
+async fn main() -> zap::Result<()> {
     let mut stream = TcpStream::connect("127.0.0.1:8080").await?;
     let message = serialize::read_message(&mut stream, Default::default()).await?;
     Ok(())
@@ -213,13 +213,13 @@ async fn handle_connection(stream: impl AsyncRead + AsyncWrite + Unpin) {
 ```rust
 use tokio::time::{timeout, Duration};
 
-async fn read_with_timeout(stream: &mut TcpStream) -> capnp::Result<()> {
+async fn read_with_timeout(stream: &mut TcpStream) -> zap::Result<()> {
     let message = timeout(
         Duration::from_secs(30),
         serialize::read_message(stream, Default::default()),
     )
     .await
-    .map_err(|_| capnp::Error::failed("timeout".into()))??;
+    .map_err(|_| zap::Error::failed("timeout".into()))??;
 
     Ok(())
 }
@@ -232,8 +232,8 @@ use futures::future::try_join_all;
 
 async fn send_to_many(
     streams: Vec<&mut TcpStream>,
-    message: &capnp::message::Builder<impl capnp::message::Allocator>,
-) -> capnp::Result<()> {
+    message: &zap::message::Builder<impl zap::message::Allocator>,
+) -> zap::Result<()> {
     let futures: Vec<_> = streams
         .into_iter()
         .map(|stream| serialize::write_message(stream, message))
@@ -247,9 +247,9 @@ async fn send_to_many(
 ## Error Handling Patterns
 
 ```rust
-use capnp::ErrorKind;
+use zap::ErrorKind;
 
-async fn robust_read<R: AsyncRead + Unpin>(reader: &mut R) -> capnp::Result<Option<Message>> {
+async fn robust_read<R: AsyncRead + Unpin>(reader: &mut R) -> zap::Result<Option<Message>> {
     match serialize::read_message(reader, Default::default()).await {
         Ok(msg) => Ok(Some(msg)),
         Err(e) => match e.kind {
@@ -271,11 +271,11 @@ struct MessageSender {
 }
 
 impl MessageSender {
-    async fn send(&self, message: &capnp::message::Builder<impl capnp::message::Allocator>) -> capnp::Result<()> {
+    async fn send(&self, message: &zap::message::Builder<impl zap::message::Allocator>) -> zap::Result<()> {
         let mut buf = Vec::new();
-        capnp::serialize::write_message(&mut buf, message)?;
+        zap::serialize::write_message(&mut buf, message)?;
         self.tx.send(buf).await.map_err(|_| {
-            capnp::Error::failed("channel closed".into())
+            zap::Error::failed("channel closed".into())
         })
     }
 }
