@@ -28,7 +28,7 @@ futures = "0.3"
 capnpc = "0.25"
 ```
 
-### Schema: hello_world.capnp
+### Schema: hello_world.zap
 
 ```protobuf
 @0x9663f4dd604afa35;
@@ -51,7 +51,7 @@ interface HelloWorld {
 ```rust
 fn main() {
     capnpc::CompilerCommand::new()
-        .file("hello_world.capnp")
+        .file("hello_world.zap")
         .run()
         .expect("compiling schema");
 }

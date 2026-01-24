@@ -24,7 +24,7 @@ capnpc = "0.25"
 ```rust
 fn main() {
     capnpc::CompilerCommand::new()
-        .file("src/schema.capnp")
+        .file("src/schema.zap")
         .run()
         .expect("schema compiler command");
 }
@@ -46,8 +46,8 @@ use schema_capnp::my_struct;
 ```rust
 fn main() {
     capnpc::CompilerCommand::new()
-        .file("src/messages.capnp")
-        .file("src/services.capnp")
+        .file("src/messages.zap")
+        .file("src/services.zap")
         .run()
         .expect("schema compiler");
 }
@@ -61,7 +61,7 @@ When schemas import other schemas:
 fn main() {
     capnpc::CompilerCommand::new()
         .src_prefix("schemas")
-        .file("schemas/main.capnp")
+        .file("schemas/main.zap")
         .import_path("schemas")
         .run()
         .expect("schema compiler");
@@ -75,7 +75,7 @@ By default, code generates to `$OUT_DIR`. Override with:
 ```rust
 fn main() {
     capnpc::CompilerCommand::new()
-        .file("schema.capnp")
+        .file("schema.zap")
         .output_path("src/generated")
         .run()
         .expect("schema compiler");
@@ -89,7 +89,7 @@ For publishing crates with generated code:
 ```rust
 fn main() {
     capnpc::CompilerCommand::new()
-        .file("schema.capnp")
+        .file("schema.zap")
         .crate_prefix("mycrate")
         .run()
         .expect("schema compiler");
@@ -239,7 +239,7 @@ cargo build
 Or touch the schema file:
 
 ```bash
-touch src/schema.capnp
+touch src/schema.zap
 cargo build
 ```
 
@@ -258,7 +258,7 @@ which capnp
 The compiler shows line numbers:
 
 ```
-schema.capnp:10:3: error: Duplicate field number.
+schema.zap:10:3: error: Duplicate field number.
 ```
 
 ### Generated Code Location
@@ -276,9 +276,9 @@ my-project/
   Cargo.toml
   build.rs
   schemas/
-    common.capnp
-    messages.capnp
-    services.capnp
+    common.zap
+    messages.zap
+    services.zap
   src/
     lib.rs
     messages.rs
@@ -292,8 +292,8 @@ fn main() {
     capnpc::CompilerCommand::new()
         .src_prefix("schemas")
         .import_path("schemas")
-        .file("schemas/messages.capnp")
-        .file("schemas/services.capnp")
+        .file("schemas/messages.zap")
+        .file("schemas/services.zap")
         .run()
         .expect("schema compiler");
 }

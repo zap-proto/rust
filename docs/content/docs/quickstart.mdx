@@ -33,7 +33,7 @@ capnpc = "0.25"
 
 ## Define the Schema
 
-Create `src/addressbook.capnp`:
+Create `src/addressbook.zap`:
 
 ```protobuf
 @0x9eb32e19f86ee174;
@@ -75,7 +75,7 @@ Create `build.rs` in the project root:
 ```rust
 fn main() {
     capnpc::CompilerCommand::new()
-        .file("src/addressbook.capnp")
+        .file("src/addressbook.zap")
         .run()
         .expect("compiling schema");
 }
