@@ -2,7 +2,7 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'
@@ -24,24 +24,24 @@ jobs:
       run:
         working-directory: docs
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: docs/package-lock.json
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
