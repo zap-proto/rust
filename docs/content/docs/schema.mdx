@@ -1,0 +1,258 @@
+---
+title: Schema Language
+description: ZAP schema language reference for Rust developers
+---
+
+# Schema Language
+
+ZAP schemas define your data structures and interfaces. The schema compiler generates Rust code that provides type-safe access to messages.
+
+## File Structure
+
+Every schema file starts with a unique file ID:
+
+```capnp
+@0x9eb32e19f86ee174;
+```
+
+Generate new IDs with:
+
+```bash
+capnp id
+```
+
+## Primitive Types
+
+| ZAP | Rust Equivalent |
+|-------------|-----------------|
+| `Void` | `()` |
+| `Bool` | `bool` |
+| `Int8/16/32/64` | `i8/i16/i32/i64` |
+| `UInt8/16/32/64` | `u8/u16/u32/u64` |
+| `Float32/64` | `f32/f64` |
+| `Text` | `capnp::text::Reader<'a>` |
+| `Data` | `capnp::data::Reader<'a>` |
+
+## Structs
+
+Structs contain numbered fields:
+
+```capnp
+struct Person {
+  id @0 :UInt32;
+  name @1 :Text;
+  email @2 :Text;
+}
+```
+
+Field numbers are permanent - never reuse or change them. This enables protocol evolution.
+
+### Default Values
+
+```capnp
+struct Config {
+  timeout @0 :UInt32 = 30;
+  enabled @1 :Bool = true;
+  name @2 :Text = "default";
+}
+```
+
+### Nested Structs
+
+```capnp
+struct Person {
+  name @0 :Text;
+
+  struct PhoneNumber {
+    number @0 :Text;
+    type @1 :Type;
+  }
+}
+```
+
+## Enums
+
+```capnp
+enum Color {
+  red @0;
+  green @1;
+  blue @2;
+}
+```
+
+In Rust:
+
+```rust
+match color {
+    Ok(Color::Red) => { ... }
+    Ok(Color::Green) => { ... }
+    Ok(Color::Blue) => { ... }
+    Err(capnp::NotInSchema(_)) => { ... }
+}
+```
+
+Always handle `NotInSchema` for forward compatibility.
+
+## Unions
+
+Tagged unions group mutually exclusive fields:
+
+```capnp
+struct Shape {
+  union {
+    circle @0 :Float32;      # radius
+    rectangle :group {
+      width @1 :Float32;
+      height @2 :Float32;
+    }
+    nothing @3 :Void;
+  }
+}
+```
+
+Access in Rust:
+
+```rust
+use shape::{Circle, Rectangle, Nothing};
+
+match shape.which() {
+    Ok(Circle(radius)) => { ... }
+    Ok(Rectangle(rect)) => {
+        let w = rect.get_width();
+        let h = rect.get_height();
+    }
+    Ok(Nothing(())) => { ... }
+    Err(capnp::NotInSchema(_)) => { ... }
+}
+```
+
+### Named Unions
+
+```capnp
+struct Person {
+  name @0 :Text;
+
+  employment :union {
+    unemployed @1 :Void;
+    employer @2 :Text;
+    school @3 :Text;
+    selfEmployed @4 :Void;
+  }
+}
+```
+
+## Lists
+
+```capnp
+struct AddressBook {
+  people @0 :List(Person);
+  tags @1 :List(Text);
+  scores @2 :List(UInt32);
+}
+```
+
+In Rust:
+
+```rust
+// Reading
+for person in address_book.get_people()? {
+    println!("{}", person.get_name()?.to_str()?);
+}
+
+// Writing
+let mut people = address_book.init_people(2);
+people.reborrow().get(0).set_name("Alice");
+people.get(1).set_name("Bob");
+```
+
+## Interfaces
+
+Interfaces define RPC methods:
+
+```capnp
+interface Calculator {
+  add @0 (a :Int32, b :Int32) -> (result :Int32);
+  subtract @1 (a :Int32, b :Int32) -> (result :Int32);
+}
+```
+
+### Capability Parameters
+
+Interfaces can pass object references:
+
+```capnp
+interface Callback {
+  call @0 (value :Int32) -> ();
+}
+
+interface Publisher {
+  subscribe @0 (callback :Callback) -> ();
+}
+```
+
+## Generics
+
+```capnp
+struct Pair(Left, Right) {
+  left @0 :Left;
+  right @1 :Right;
+}
+
+struct IntStringPair {
+  pair @0 :Pair(Int32, Text);
+}
+```
+
+## Imports
+
+```capnp
+using Common = import "common.capnp";
+
+struct MyStruct {
+  field @0 :Common.SharedType;
+}
+```
+
+## Annotations
+
+Custom metadata:
+
+```capnp
+annotation myAnnotation(struct, field) :Text;
+
+struct Person {
+  name @0 :Text $myAnnotation("searchable");
+}
+```
+
+## Protocol Evolution
+
+ZAP schemas evolve safely:
+
+### Safe Changes
+
+- Add new fields with new numbers
+- Add new enum values
+- Add new interface methods
+- Rename fields (wire format uses numbers)
+
+### Unsafe Changes
+
+- Remove or reorder field numbers
+- Change field types
+- Remove enum values
+- Remove interface methods
+
+### Adding Fields
+
+```capnp
+struct Person {
+  id @0 :UInt32;
+  name @1 :Text;
+  email @2 :Text;
+  # Added later:
+  phone @3 :Text;
+}
+```
+
+Old readers ignore unknown fields. New readers see defaults for missing fields.

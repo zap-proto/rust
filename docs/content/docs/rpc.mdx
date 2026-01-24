@@ -1,0 +1,308 @@
+---
+title: RPC
+description: Capability-based remote procedure calls with capnp-rpc
+---
+
+# RPC
+
+ZAP RPC is a capability-based system where object references can be passed over the network. The `capnp-rpc` crate provides a Rust implementation.
+
+## Dependencies
+
+```toml
+[dependencies]
+capnp = "0.25"
+capnp-rpc = "0.25"
+tokio = { version = "1", features = ["rt", "net", "io-util"] }
+tokio-util = { version = "0.7", features = ["compat"] }
+futures = "0.3"
+```
+
+## Defining an Interface
+
+```capnp
+@0x9663f4dd604afa35;
+
+interface HelloWorld {
+    struct HelloRequest {
+        name @0 :Text;
+    }
+
+    struct HelloReply {
+        message @0 :Text;
+    }
+
+    sayHello @0 (request: HelloRequest) -> (reply: HelloReply);
+}
+```
+
+## Implementing a Server
+
+```rust
+use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
+use crate::hello_world_capnp::hello_world;
+use futures::AsyncReadExt;
+use std::rc::Rc;
+
+struct HelloWorldImpl;
+
+impl hello_world::Server for HelloWorldImpl {
+    async fn say_hello(
+        self: Rc<Self>,
+        params: hello_world::SayHelloParams,
+        mut results: hello_world::SayHelloResults,
+    ) -> Result<(), capnp::Error> {
+        let request = params.get()?.get_request()?;
+        let name = request.get_name()?.to_str()?;
+
+        let message = format!("Hello, {}!", name);
+        results.get().init_reply().set_message(message);
+
+        Ok(())
+    }
+}
+```
+
+### Starting the Server
+
+```rust
+pub async fn run_server(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
+    tokio::task::LocalSet::new()
+        .run_until(async move {
+            let listener = tokio::net::TcpListener::bind(&addr).await?;
+            let client: hello_world::Client = capnp_rpc::new_client(HelloWorldImpl);
+
+            loop {
+                let (stream, _) = listener.accept().await?;
+                stream.set_nodelay(true)?;
+
+                let (reader, writer) =
+                    tokio_util::compat::TokioAsyncReadCompatExt::compat(stream).split();
+
+                let network = twoparty::VatNetwork::new(
+                    futures::io::BufReader::new(reader),
+                    futures::io::BufWriter::new(writer),
+                    rpc_twoparty_capnp::Side::Server,
+                    Default::default(),
+                );
+
+                let rpc_system = RpcSystem::new(Box::new(network), Some(client.clone().client));
+                tokio::task::spawn_local(rpc_system);
+            }
+        })
+        .await
+}
+```
+
+## Implementing a Client
+
+```rust
+use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
+use crate::hello_world_capnp::hello_world;
+use futures::AsyncReadExt;
+
+pub async fn run_client(
+    addr: std::net::SocketAddr,
+    name: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    tokio::task::LocalSet::new()
+        .run_until(async move {
+            let stream = tokio::net::TcpStream::connect(&addr).await?;
+            stream.set_nodelay(true)?;
+
+            let (reader, writer) =
+                tokio_util::compat::TokioAsyncReadCompatExt::compat(stream).split();
+
+            let network = Box::new(twoparty::VatNetwork::new(
+                futures::io::BufReader::new(reader),
+                futures::io::BufWriter::new(writer),
+                rpc_twoparty_capnp::Side::Client,
+                Default::default(),
+            ));
+
+            let mut rpc_system = RpcSystem::new(network, None);
+            let client: hello_world::Client =
+                rpc_system.bootstrap(rpc_twoparty_capnp::Side::Server);
+
+            tokio::task::spawn_local(rpc_system);
+
+            // Make the RPC call
+            let mut request = client.say_hello_request();
+            request.get().init_request().set_name(name);
+
+            let reply = request.send().promise.await?;
+            let message = reply.get()?.get_reply()?.get_message()?.to_str()?;
+
+            Ok(message.to_string())
+        })
+        .await
+}
+```
+
+## Capability Passing
+
+Interfaces can accept and return other interfaces:
+
+```capnp
+interface Callback {
+    call @0 (value :Int32) -> ();
+}
+
+interface Publisher {
+    subscribe @0 (callback :Callback) -> (subscription :Subscription);
+}
+
+interface Subscription {
+    cancel @0 () -> ();
+}
+```
+
+### Implementing Callback
+
+```rust
+struct CallbackImpl {
+    sender: tokio::sync::mpsc::Sender<i32>,
+}
+
+impl callback::Server for CallbackImpl {
+    async fn call(
+        self: Rc<Self>,
+        params: callback::CallParams,
+        _results: callback::CallResults,
+    ) -> Result<(), capnp::Error> {
+        let value = params.get()?.get_value();
+        self.sender.send(value).await.map_err(|e| {
+            capnp::Error::failed(format!("send failed: {}", e))
+        })?;
+        Ok(())
+    }
+}
+```
+
+### Passing Capabilities
+
+```rust
+// Create a callback capability
+let (tx, rx) = tokio::sync::mpsc::channel(10);
+let callback_client: callback::Client =
+    capnp_rpc::new_client(CallbackImpl { sender: tx });
+
+// Pass it to the server
+let mut request = publisher.subscribe_request();
+request.get().set_callback(callback_client);
+let response = request.send().promise.await?;
+
+// Get the returned capability
+let subscription: subscription::Client = response.get()?.get_subscription()?;
+```
+
+## Pipelining
+
+ZAP supports promise pipelining - calling methods on results before they arrive:
+
+```capnp
+interface UserService {
+    getUser @0 (id :UInt64) -> (user :User);
+}
+
+interface User {
+    getName @0 () -> (name :Text);
+    getProfile @1 () -> (profile :Profile);
+}
+```
+
+```rust
+// Pipeline: don't wait for getUser to complete
+let user_request = service.get_user_request();
+user_request.get().set_id(123);
+
+// This request is sent before we know if getUser succeeds
+let name_request = user_request.send().pipeline.get_user().get_name_request();
+let name = name_request.send().promise.await?;
+```
+
+## Error Handling
+
+```rust
+impl my_service::Server for MyServiceImpl {
+    async fn do_something(
+        self: Rc<Self>,
+        _params: my_service::DoSomethingParams,
+        _results: my_service::DoSomethingResults,
+    ) -> Result<(), capnp::Error> {
+        // Return an error
+        Err(capnp::Error::failed("Something went wrong".into()))
+    }
+}
+```
+
+Clients receive the error:
+
+```rust
+match request.send().promise.await {
+    Ok(response) => { /* success */ }
+    Err(e) => eprintln!("RPC failed: {}", e),
+}
+```
+
+## Disconnection Handling
+
+Detect when the other side disconnects:
+
+```rust
+let disconnector = rpc_system.get_disconnector();
+
+tokio::select! {
+    _ = disconnector => {
+        println!("Connection closed");
+    }
+    result = some_operation() => {
+        // Handle result
+    }
+}
+```
+
+## VatNetwork Options
+
+```rust
+use capnp_rpc::twoparty::VatNetworkOptions;
+
+let options = VatNetworkOptions {
+    receive_options: capnp::message::ReaderOptions::new()
+        .traversal_limit_in_words(Some(64 * 1024 * 1024)),
+};
+
+let network = twoparty::VatNetwork::new(
+    reader,
+    writer,
+    rpc_twoparty_capnp::Side::Server,
+    options,
+);
+```
+
+## Testing
+
+Use in-memory channels for testing:
+
+```rust
+use async_byte_channel::channel;
+
+let (client_writer, server_reader) = channel();
+let (server_writer, client_reader) = channel();
+
+// Server side
+let server_network = twoparty::VatNetwork::new(
+    server_reader,
+    server_writer,
+    rpc_twoparty_capnp::Side::Server,
+    Default::default(),
+);
+
+// Client side
+let client_network = twoparty::VatNetwork::new(
+    client_reader,
+    client_writer,
+    rpc_twoparty_capnp::Side::Client,
+    Default::default(),
+);
+```

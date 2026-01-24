@@ -1,0 +1,337 @@
+---
+title: RPC Hello World
+description: Complete RPC example with ZAP in Rust using tokio
+---
+
+# RPC Hello World
+
+This example demonstrates a complete client-server RPC application using ZAP and tokio.
+
+## Project Setup
+
+### Cargo.toml
+
+```toml
+[package]
+name = "hello-rpc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+capnp = "0.25"
+capnp-rpc = "0.25"
+tokio = { version = "1", features = ["rt", "net", "io-util", "macros"] }
+tokio-util = { version = "0.7", features = ["compat"] }
+futures = "0.3"
+
+[build-dependencies]
+capnpc = "0.25"
+```
+
+### Schema: hello_world.capnp
+
+```capnp
+@0x9663f4dd604afa35;
+
+interface HelloWorld {
+    struct HelloRequest {
+        name @0 :Text;
+    }
+
+    struct HelloReply {
+        message @0 :Text;
+    }
+
+    sayHello @0 (request: HelloRequest) -> (reply: HelloReply);
+}
+```
+
+### build.rs
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .file("hello_world.capnp")
+        .run()
+        .expect("compiling schema");
+}
+```
+
+## Server Implementation
+
+```rust
+capnp::generated_code!(mod hello_world_capnp);
+
+use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
+use hello_world_capnp::hello_world;
+use futures::AsyncReadExt;
+use std::net::ToSocketAddrs;
+use std::rc::Rc;
+
+struct HelloWorldImpl;
+
+impl hello_world::Server for HelloWorldImpl {
+    async fn say_hello(
+        self: Rc<Self>,
+        params: hello_world::SayHelloParams,
+        mut results: hello_world::SayHelloResults,
+    ) -> Result<(), capnp::Error> {
+        // Extract the name from the request
+        let request = params.get()?.get_request()?;
+        let name = request.get_name()?.to_str()?;
+
+        // Build the response
+        let message = format!("Hello, {}!", name);
+        results.get().init_reply().set_message(message);
+
+        Ok(())
+    }
+}
+
+pub async fn run_server(addr: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let addr = addr
+        .to_socket_addrs()?
+        .next()
+        .expect("could not parse address");
+
+    tokio::task::LocalSet::new()
+        .run_until(async move {
+            let listener = tokio::net::TcpListener::bind(&addr).await?;
+            println!("Server listening on {}", addr);
+
+            // Create the capability
+            let hello_world_client: hello_world::Client =
+                capnp_rpc::new_client(HelloWorldImpl);
+
+            loop {
+                let (stream, peer) = listener.accept().await?;
+                println!("Connection from {}", peer);
+
+                stream.set_nodelay(true)?;
+
+                // Split into reader/writer and convert to futures traits
+                let (reader, writer) =
+                    tokio_util::compat::TokioAsyncReadCompatExt::compat(stream).split();
+
+                // Create the RPC network
+                let network = twoparty::VatNetwork::new(
+                    futures::io::BufReader::new(reader),
+                    futures::io::BufWriter::new(writer),
+                    rpc_twoparty_capnp::Side::Server,
+                    Default::default(),
+                );
+
+                // Create and spawn the RPC system
+                let rpc_system = RpcSystem::new(
+                    Box::new(network),
+                    Some(hello_world_client.clone().client),
+                );
+
+                tokio::task::spawn_local(rpc_system);
+            }
+        })
+        .await
+}
+```
+
+## Client Implementation
+
+```rust
+pub async fn run_client(addr: &str, name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let addr = addr
+        .to_socket_addrs()?
+        .next()
+        .expect("could not parse address");
+
+    let name = name.to_string();
+
+    tokio::task::LocalSet::new()
+        .run_until(async move {
+            // Connect to server
+            let stream = tokio::net::TcpStream::connect(&addr).await?;
+            stream.set_nodelay(true)?;
+
+            // Split and convert to futures traits
+            let (reader, writer) =
+                tokio_util::compat::TokioAsyncReadCompatExt::compat(stream).split();
+
+            // Create RPC network
+            let network = Box::new(twoparty::VatNetwork::new(
+                futures::io::BufReader::new(reader),
+                futures::io::BufWriter::new(writer),
+                rpc_twoparty_capnp::Side::Client,
+                Default::default(),
+            ));
+
+            // Create RPC system and bootstrap the client
+            let mut rpc_system = RpcSystem::new(network, None);
+            let hello_world: hello_world::Client =
+                rpc_system.bootstrap(rpc_twoparty_capnp::Side::Server);
+
+            // Spawn the RPC system
+            tokio::task::spawn_local(rpc_system);
+
+            // Build and send the request
+            let mut request = hello_world.say_hello_request();
+            request.get().init_request().set_name(&name);
+
+            // Await the response
+            let reply = request.send().promise.await?;
+
+            // Extract and print the message
+            let message = reply.get()?.get_reply()?.get_message()?.to_str()?;
+            println!("Server replied: {}", message);
+
+            Ok(())
+        })
+        .await
+}
+```
+
+## Main Function
+
+```rust
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() < 3 {
+        eprintln!("usage:");
+        eprintln!("  {} server ADDRESS:PORT", args[0]);
+        eprintln!("  {} client ADDRESS:PORT NAME", args[0]);
+        std::process::exit(1);
+    }
+
+    match args[1].as_str() {
+        "server" => run_server(&args[2]).await,
+        "client" => {
+            if args.len() < 4 {
+                eprintln!("client requires NAME argument");
+                std::process::exit(1);
+            }
+            run_client(&args[2], &args[3]).await
+        }
+        cmd => {
+            eprintln!("unknown command: {}", cmd);
+            std::process::exit(1);
+        }
+    }
+}
+```
+
+## Running
+
+Build and run in two terminals:
+
+Terminal 1 (server):
+
+```bash
+cargo run -- server 127.0.0.1:9000
+```
+
+Terminal 2 (client):
+
+```bash
+cargo run -- client 127.0.0.1:9000 World
+```
+
+Output (client):
+
+```
+Server replied: Hello, World!
+```
+
+## Key Concepts
+
+### LocalSet Requirement
+
+`capnp-rpc` uses `Rc` internally, so tasks must run on a `LocalSet`:
+
+```rust
+tokio::task::LocalSet::new()
+    .run_until(async {
+        // RPC code here
+    })
+    .await
+```
+
+### tokio-util Compat
+
+ZAP uses `futures::io` traits. Convert tokio types:
+
+```rust
+use tokio_util::compat::TokioAsyncReadCompatExt;
+
+let compat_stream = tokio_stream.compat();
+```
+
+### Creating Clients
+
+From a server implementation:
+
+```rust
+let client: hello_world::Client = capnp_rpc::new_client(HelloWorldImpl);
+```
+
+From bootstrapping:
+
+```rust
+let client: hello_world::Client = rpc_system.bootstrap(rpc_twoparty_capnp::Side::Server);
+```
+
+### Request/Response Pattern
+
+```rust
+// Build request
+let mut request = client.say_hello_request();
+request.get().init_request().set_name("Alice");
+
+// Send and await
+let reply = request.send().promise.await?;
+
+// Extract response
+let message = reply.get()?.get_reply()?.get_message()?.to_str()?;
+```
+
+### Server Trait
+
+Implement the generated `Server` trait:
+
+```rust
+impl hello_world::Server for HelloWorldImpl {
+    async fn say_hello(
+        self: Rc<Self>,         // Self is wrapped in Rc
+        params: ...,            // Request parameters
+        mut results: ...,       // Response builder
+    ) -> Result<(), capnp::Error> {
+        // Implementation
+        Ok(())
+    }
+}
+```
+
+## Error Handling
+
+Return errors from server methods:
+
+```rust
+async fn say_hello(...) -> Result<(), capnp::Error> {
+    if name.is_empty() {
+        return Err(capnp::Error::failed("name cannot be empty".into()));
+    }
+    // ...
+}
+```
+
+Handle errors on the client:
+
+```rust
+match request.send().promise.await {
+    Ok(reply) => {
+        println!("Success: {}", reply.get()?.get_reply()?.get_message()?.to_str()?);
+    }
+    Err(e) => {
+        eprintln!("RPC failed: {}", e);
+    }
+}
+```

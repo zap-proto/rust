@@ -1,0 +1,128 @@
+---
+title: Installation
+description: Installing ZAP Rust crates and the capnp compiler
+---
+
+# Installation
+
+## Prerequisites
+
+You need the ZAP compiler (`capnp`) installed on your system. This compiles `.capnp` schema files into a binary format that the Rust code generator reads.
+
+### macOS
+
+```bash
+brew install capnp
+```
+
+### Ubuntu/Debian
+
+```bash
+apt-get install capnproto
+```
+
+### From Source
+
+```bash
+git clone https://github.com/capnproto/capnproto.git
+cd capnproto/c++
+autoreconf -i
+./configure
+make -j6
+sudo make install
+```
+
+Verify installation:
+
+```bash
+capnp --version
+```
+
+## Rust Crates
+
+Add the runtime crate to your `Cargo.toml`:
+
+```toml
+[dependencies]
+capnp = "0.25"
+```
+
+Add the code generator as a build dependency:
+
+```toml
+[build-dependencies]
+capnpc = "0.25"
+```
+
+### Optional Crates
+
+For async I/O:
+
+```toml
+[dependencies]
+capnp-futures = "0.25"
+```
+
+For RPC:
+
+```toml
+[dependencies]
+capnp-rpc = "0.25"
+```
+
+## Feature Flags
+
+The `capnp` crate supports several feature flags:
+
+| Feature | Default | Description |
+|---------|---------|-------------|
+| `std` | Yes | Standard library support |
+| `alloc` | Yes | Heap allocation |
+| `unaligned` | No | Relaxed alignment (slower on some targets) |
+| `sync_reader` | No | Thread-safe message readers |
+
+### no_std Support
+
+For embedded systems:
+
+```toml
+[dependencies]
+capnp = { version = "0.25", default-features = false }
+```
+
+With allocation but no std:
+
+```toml
+[dependencies]
+capnp = { version = "0.25", default-features = false, features = ["alloc"] }
+```
+
+## Project Structure
+
+A typical project layout:
+
+```
+my-project/
+  Cargo.toml
+  build.rs          # Code generation
+  src/
+    lib.rs
+    schema.capnp    # Your schema
+```
+
+The `build.rs` file compiles schemas at build time:
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .file("src/schema.capnp")
+        .run()
+        .expect("schema compiler command");
+}
+```
+
+Include the generated code in your source:
+
+```rust
+capnp::generated_code!(mod schema_capnp);
+```

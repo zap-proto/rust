@@ -1,0 +1,15 @@
+{
+  "title": "Cap'n Proto Rust",
+  "pages": [
+    "index",
+    "installation",
+    "quickstart",
+    "schema",
+    "codegen",
+    "serialization",
+    "rpc",
+    "async",
+    "---Examples---",
+    "examples/..."
+  ]
+}

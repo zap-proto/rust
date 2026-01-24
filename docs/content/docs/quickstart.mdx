@@ -1,0 +1,258 @@
+---
+title: Quickstart
+description: Build your first ZAP application in Rust
+---
+
+# Quickstart
+
+This guide walks through building a simple addressbook application that serializes and deserializes ZAP messages.
+
+## Create a New Project
+
+```bash
+cargo new addressbook
+cd addressbook
+```
+
+## Add Dependencies
+
+Edit `Cargo.toml`:
+
+```toml
+[package]
+name = "addressbook"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+capnp = "0.25"
+
+[build-dependencies]
+capnpc = "0.25"
+```
+
+## Define the Schema
+
+Create `src/addressbook.capnp`:
+
+```capnp
+@0x9eb32e19f86ee174;
+
+struct Person {
+  id @0 :UInt32;
+  name @1 :Text;
+  email @2 :Text;
+  phones @3 :List(PhoneNumber);
+
+  struct PhoneNumber {
+    number @0 :Text;
+    type @1 :Type;
+
+    enum Type {
+      mobile @0;
+      home @1;
+      work @2;
+    }
+  }
+
+  employment :union {
+    unemployed @4 :Void;
+    employer @5 :Text;
+    school @6 :Text;
+    selfEmployed @7 :Void;
+  }
+}
+
+struct AddressBook {
+  people @0 :List(Person);
+}
+```
+
+## Create build.rs
+
+Create `build.rs` in the project root:
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .file("src/addressbook.capnp")
+        .run()
+        .expect("compiling schema");
+}
+```
+
+## Write the Application
+
+Replace `src/main.rs`:
+
+```rust
+capnp::generated_code!(mod addressbook_capnp);
+
+use addressbook_capnp::{address_book, person};
+use capnp::serialize_packed;
+
+fn write_address_book() -> capnp::Result<()> {
+    // Create a message builder
+    let mut message = capnp::message::Builder::new_default();
+
+    // Initialize the root struct
+    let address_book = message.init_root::<address_book::Builder>();
+    let mut people = address_book.init_people(2);
+
+    // First person: Alice
+    {
+        let mut alice = people.reborrow().get(0);
+        alice.set_id(123);
+        alice.set_name("Alice");
+        alice.set_email("alice@example.com");
+
+        let mut phones = alice.reborrow().init_phones(1);
+        phones.reborrow().get(0).set_number("555-1212");
+        phones.get(0).set_type(person::phone_number::Type::Mobile);
+
+        alice.get_employment().set_school("MIT");
+    }
+
+    // Second person: Bob
+    {
+        let mut bob = people.get(1);
+        bob.set_id(456);
+        bob.set_name("Bob");
+        bob.set_email("bob@example.com");
+
+        let mut phones = bob.reborrow().init_phones(2);
+        phones.reborrow().get(0).set_number("555-4567");
+        phones.reborrow().get(0).set_type(person::phone_number::Type::Home);
+        phones.reborrow().get(1).set_number("555-7654");
+        phones.get(1).set_type(person::phone_number::Type::Work);
+
+        bob.get_employment().set_unemployed(());
+    }
+
+    // Write to stdout
+    serialize_packed::write_message(&mut std::io::stdout(), &message)
+}
+
+fn read_address_book() -> capnp::Result<()> {
+    let stdin = std::io::stdin();
+    let message = serialize_packed::read_message(
+        &mut stdin.lock(),
+        capnp::message::ReaderOptions::new(),
+    )?;
+
+    let address_book = message.get_root::<address_book::Reader>()?;
+
+    for person in address_book.get_people()? {
+        println!(
+            "{}: {}",
+            person.get_name()?.to_str()?,
+            person.get_email()?.to_str()?
+        );
+
+        for phone in person.get_phones()? {
+            let type_name = match phone.get_type() {
+                Ok(person::phone_number::Type::Mobile) => "mobile",
+                Ok(person::phone_number::Type::Home) => "home",
+                Ok(person::phone_number::Type::Work) => "work",
+                Err(capnp::NotInSchema(_)) => "UNKNOWN",
+            };
+            println!("  {} phone: {}", type_name, phone.get_number()?.to_str()?);
+        }
+
+        match person.get_employment().which() {
+            Ok(person::employment::Unemployed(())) => {
+                println!("  unemployed");
+            }
+            Ok(person::employment::Employer(employer)) => {
+                println!("  employer: {}", employer?.to_str()?);
+            }
+            Ok(person::employment::School(school)) => {
+                println!("  student at: {}", school?.to_str()?);
+            }
+            Ok(person::employment::SelfEmployed(())) => {
+                println!("  self-employed");
+            }
+            Err(capnp::NotInSchema(_)) => {}
+        }
+    }
+    Ok(())
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() < 2 {
+        eprintln!("usage: {} [write | read]", args[0]);
+        std::process::exit(1);
+    }
+
+    let result = match args[1].as_str() {
+        "write" => write_address_book(),
+        "read" => read_address_book(),
+        _ => {
+            eprintln!("unrecognized command: {}", args[1]);
+            std::process::exit(1);
+        }
+    };
+
+    if let Err(e) = result {
+        eprintln!("error: {}", e);
+        std::process::exit(1);
+    }
+}
+```
+
+## Build and Run
+
+```bash
+cargo build
+```
+
+Write a message and pipe it back to read:
+
+```bash
+./target/debug/addressbook write | ./target/debug/addressbook read
+```
+
+Output:
+
+```
+Alice: alice@example.com
+  mobile phone: 555-1212
+  student at: MIT
+Bob: bob@example.com
+  home phone: 555-4567
+  work phone: 555-7654
+  unemployed
+```
+
+## Key Concepts
+
+### Builders and Readers
+
+- `Builder<'a>` types have mutable access and set fields
+- `Reader<'a>` types have read-only access to message data
+- Lifetime `'a` tracks the underlying buffer - no copying
+
+### reborrow()
+
+When you need multiple mutable references to parts of a message:
+
+```rust
+let mut phones = alice.reborrow().init_phones(1);
+phones.reborrow().get(0).set_number("555-1212");
+```
+
+### Unions
+
+Tagged unions use `.which()` to match variants:
+
+```rust
+match person.get_employment().which() {
+    Ok(person::employment::School(school)) => { ... }
+    ...
+}
+```
+
+### Error Handling
+
+All accessors return `capnp::Result<T>` for safe handling of malformed input.

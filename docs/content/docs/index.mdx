@@ -1,0 +1,65 @@
+---
+title: Overview
+description: ZAP Rust - zero-copy serialization and capability-based RPC
+---
+
+# ZAP Rust
+
+ZAP is a type system for distributed systems. With ZAP, you describe your data and interfaces in a schema file, then generate code to produce and consume values of those types.
+
+## Why ZAP?
+
+ZAP messages are encoded in a format suitable for:
+
+- **Network transmission** - efficient wire format
+- **Disk persistence** - directly mmap files
+- **Zero-copy traversal** - skip serialization entirely
+
+This means ZAP is "infinity times faster" than alternatives like Protocol Buffers - you can completely skip the deserialization step.
+
+## Rust Implementation
+
+The Rust implementation provides:
+
+- **Type-safe builders and readers** with lifetime tracking
+- **Capability-based RPC** with object references
+- **Async support** via futures and tokio
+- **no_std support** for embedded systems
+
+## Crates
+
+| Crate | Description |
+|-------|-------------|
+| `capnp` | Runtime library for ZAP messages |
+| `capnpc` | Code generator plugin for build.rs |
+| `capnp-futures` | Async reading and writing |
+| `capnp-rpc` | Object-capability RPC system |
+
+## Example Schema
+
+```capnp
+@0x986b3393db1396c9;
+
+struct Point {
+    x @0 :Float32;
+    y @1 :Float32;
+}
+
+interface PointTracker {
+    addPoint @0 (p :Point) -> (totalPoints :UInt64);
+}
+```
+
+The generated Rust code includes:
+- `point::Reader<'a>` with `get_x()` and `get_y()` methods
+- `point::Builder<'a>` with `set_x()` and `set_y()` methods
+- `point_tracker::Server` trait with `add_point()` method
+- `point_tracker::Client` for remote invocation
+
+The lifetime parameter `'a` tracks borrowed references to the underlying message buffers - no copying occurs.
+
+## Getting Started
+
+1. [Install the crates](/docs/installation)
+2. [Run through the quickstart](/docs/quickstart)
+3. [Learn the schema language](/docs/schema)

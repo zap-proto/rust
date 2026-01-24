@@ -1,0 +1,300 @@
+---
+title: Code Generation
+description: Generating Rust code from ZAP schemas using capnpc
+---
+
+# Code Generation
+
+The `capnpc` crate generates Rust code from ZAP schema files. This happens at build time via `build.rs`.
+
+## Basic Setup
+
+### Cargo.toml
+
+```toml
+[dependencies]
+capnp = "0.25"
+
+[build-dependencies]
+capnpc = "0.25"
+```
+
+### build.rs
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .file("src/schema.capnp")
+        .run()
+        .expect("schema compiler command");
+}
+```
+
+### Include Generated Code
+
+```rust
+// In lib.rs or main.rs
+capnp::generated_code!(mod schema_capnp);
+
+use schema_capnp::my_struct;
+```
+
+## CompilerCommand Options
+
+### Multiple Schema Files
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .file("src/messages.capnp")
+        .file("src/services.capnp")
+        .run()
+        .expect("schema compiler");
+}
+```
+
+### Import Paths
+
+When schemas import other schemas:
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .src_prefix("schemas")
+        .file("schemas/main.capnp")
+        .import_path("schemas")
+        .run()
+        .expect("schema compiler");
+}
+```
+
+### Output Directory
+
+By default, code generates to `$OUT_DIR`. Override with:
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .file("schema.capnp")
+        .output_path("src/generated")
+        .run()
+        .expect("schema compiler");
+}
+```
+
+### Crate Prefix
+
+For publishing crates with generated code:
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .file("schema.capnp")
+        .crate_prefix("mycrate")
+        .run()
+        .expect("schema compiler");
+}
+```
+
+## Generated Code Structure
+
+For a schema:
+
+```capnp
+@0x9eb32e19f86ee174;
+
+struct Person {
+  id @0 :UInt32;
+  name @1 :Text;
+}
+```
+
+The generator creates:
+
+```rust
+pub mod person {
+    pub struct Reader<'a> { ... }
+    pub struct Builder<'a> { ... }
+
+    impl<'a> Reader<'a> {
+        pub fn get_id(&self) -> u32 { ... }
+        pub fn get_name(&self) -> capnp::Result<capnp::text::Reader<'a>> { ... }
+        pub fn has_name(&self) -> bool { ... }
+    }
+
+    impl<'a> Builder<'a> {
+        pub fn get_id(&self) -> u32 { ... }
+        pub fn set_id(&mut self, value: u32) { ... }
+        pub fn get_name(&self) -> capnp::Result<capnp::text::Builder<'a>> { ... }
+        pub fn set_name(&mut self, value: impl capnp::text::SetterInput<'a>) { ... }
+        pub fn has_name(&self) -> bool { ... }
+    }
+}
+```
+
+## Ownership Patterns
+
+### Reader Lifetimes
+
+Readers borrow from the message buffer:
+
+```rust
+fn process_person<'a>(reader: person::Reader<'a>) -> capnp::Result<&'a str> {
+    reader.get_name()?.to_str()
+}
+```
+
+### Builder Lifetimes
+
+Builders borrow mutably from the message:
+
+```rust
+fn populate_person(builder: person::Builder<'_>) {
+    builder.set_id(123);
+    builder.set_name("Alice");
+}
+```
+
+### reborrow()
+
+Get a new borrow without consuming the builder:
+
+```rust
+fn init_people(mut list: address_book::Builder<'_>) {
+    let mut people = list.init_people(2);
+
+    // reborrow() lets us use `people` again after this
+    people.reborrow().get(0).set_name("Alice");
+    people.get(1).set_name("Bob");  // Consumes people
+}
+```
+
+## Unions
+
+For a union:
+
+```capnp
+struct Shape {
+  union {
+    circle @0 :Float32;
+    rectangle @1 :Rectangle;
+  }
+}
+```
+
+Generated code:
+
+```rust
+pub mod shape {
+    pub enum Which<'a> {
+        Circle(f32),
+        Rectangle(rectangle::Reader<'a>),
+    }
+
+    impl<'a> Reader<'a> {
+        pub fn which(&self) -> Result<Which<'a>, capnp::NotInSchema> { ... }
+    }
+}
+```
+
+## Interface Code
+
+For an interface:
+
+```capnp
+interface Calculator {
+  add @0 (a :Int32, b :Int32) -> (result :Int32);
+}
+```
+
+Generated code:
+
+```rust
+pub mod calculator {
+    pub struct Client { ... }
+
+    impl Client {
+        pub fn add_request(&self) -> AddRequest { ... }
+    }
+
+    pub trait Server {
+        async fn add(
+            self: std::rc::Rc<Self>,
+            params: AddParams,
+            results: AddResults,
+        ) -> Result<(), capnp::Error>;
+    }
+}
+```
+
+## Build Caching
+
+Cargo caches build.rs output. Force regeneration:
+
+```bash
+cargo clean
+cargo build
+```
+
+Or touch the schema file:
+
+```bash
+touch src/schema.capnp
+cargo build
+```
+
+## Troubleshooting
+
+### capnp Not Found
+
+Ensure `capnp` is in PATH:
+
+```bash
+which capnp
+```
+
+### Schema Errors
+
+The compiler shows line numbers:
+
+```
+schema.capnp:10:3: error: Duplicate field number.
+```
+
+### Generated Code Location
+
+Find generated files:
+
+```bash
+ls target/debug/build/*/out/*.rs
+```
+
+## Example Project Structure
+
+```
+my-project/
+  Cargo.toml
+  build.rs
+  schemas/
+    common.capnp
+    messages.capnp
+    services.capnp
+  src/
+    lib.rs
+    messages.rs
+    services.rs
+```
+
+With build.rs:
+
+```rust
+fn main() {
+    capnpc::CompilerCommand::new()
+        .src_prefix("schemas")
+        .import_path("schemas")
+        .file("schemas/messages.capnp")
+        .file("schemas/services.capnp")
+        .run()
+        .expect("schema compiler");
+}
+```

@@ -1,22 +1,22 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import { RootProvider } from 'fumadocs-ui/provider';
+import 'fumadocs-ui/style.css';
+import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'capnp-rust Documentation',
-  description: 'Cap\'n Proto for Rust - High-performance serialization and RPC',
-}
+  title: {
+    template: '%s | ZAP Rust',
+    default: 'ZAP Rust Documentation',
+  },
+  description: 'Rust bindings for ZAP - Zero-Copy App Proto for AI agent communication',
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <RootProvider>{children}</RootProvider>
+      </body>
     </html>
-  )
+  );
 }
