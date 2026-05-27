@@ -1,5 +1,8 @@
 # Cap'n Proto for Rust
 
+> **Docs:** [ZAP Rust SDK](https://zap-proto.dev/docs/sdks/rust) · part of the [ZAP Protocol](https://zap-proto.io)
+
+
 [![Build Status](https://github.com/capnproto/capnproto-rust/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/capnproto/capnproto-rust/actions?query=workflow%3ACI)
 
 [documentation](https://docs.rs/capnp/)
@@ -89,4 +92,3 @@ and the latter can be used to invoke a possibly-remote instance of a `PointTrack
 ## Unimplemented / Future Work
 
 - [orphans](https://capnproto.org/cxx.html#orphans)
-
