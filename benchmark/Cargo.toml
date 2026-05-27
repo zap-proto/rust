@@ -16,6 +16,11 @@ path = "benchmark.rs"
 name = "run_all_benchmarks"
 path = "run_all.rs"
 
+[[bin]]
+
+name = "run_json"
+path = "run_json.rs"
+
 [build-dependencies]
 capnpc = { path = "../capnpc" }
 
