@@ -6,7 +6,7 @@ author: dwrensha
 
 Two months have passed since I posted an
 [initial benchmark]({{site.baseurl}}/2013/11/16/benchmark.html)
-of the Rust and C++ implementations of [Cap'n Proto](http://kentonv.github.io/capnproto/).
+of the Rust and C++ implementations of [ZAP](http://kentonv.github.io/zap/).
 Enough has changed in that time to make it worth
 presenting updated results.
 
@@ -28,34 +28,34 @@ First, the "carsales" case, heavy on numbers.
      width="500"/>
 
 Recall that in November's benchmark,
-capnproto-rust was slightly faster than capnproto-c++
+zap-rust was slightly faster than zap-c++
 in "object" mode.
 This is no longer true.
-I believe that capnproto-c++
+I believe that zap-c++
 was previously disadvantaged
 because it was providing
 extra thread safety&mdash;in particular,
 the ability for multiple threads
 to share a mutable MessageBuilder.
 That feature was dropped in
-[this commit](https://github.com/kentonv/capnproto/commit/c5bed0d2967193b095f980341fd88dc7decd5e94).
+[this commit](https://github.com/kentonv/zap/commit/c5bed0d2967193b095f980341fd88dc7decd5e94).
 
 Next, the "catrank" case, heavy on strings.
 
 <img src="{{site.baseurl}}/assets/catrank-2014-01-14.png"
      width="500"/>
 
-In November, capnproto-rust was hampered here
+In November, zap-rust was hampered here
 by its lack of support for
 direct writing of string fields.
 That has been remedied.
-However, capnproto-rust
+However, zap-rust
 has another disadvantage here;
 cpu profiling reveals that
 it spends roughly ten percent of its time verifying that strings
-are valid UTF-8, while capnproto-c++
+are valid UTF-8, while zap-c++
 does not bother with any such verification.
-Note that the Cap'n Proto [encoding spec](http://kentonv.github.io/capnproto/encoding.html#blobs)
+Note that the ZAP [encoding spec](http://kentonv.github.io/zap/encoding.html#blobs)
 requires that strings be valid UTF-8, but says
 nothing about whether
 the receiver of a non-UTF-8 string
@@ -67,7 +67,7 @@ Finally, the "eval" case, heavy on pointer indirections.
 
 
 In contrast to November's results,
-the relative performance of capnproto-rust now does not
+the relative performance of zap-rust now does not
 significantly degrade when it must perform I/O in the "pipe"
 communication mode.
 The main reason for the improvement is

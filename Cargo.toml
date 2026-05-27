@@ -7,33 +7,33 @@ resolver = "2"
 
 members = [
     # main crates, published on crates.io
-    "capnp",
-    "capnpc",
-    "capnp-futures",
-    "capnp-rpc",
+    "zap",
+    "zapc",
+    "zap-futures",
+    "zap-rpc",
 
     # testing and examples
     "async-byte-channel",
     "benchmark",
-    "capnpc/test",
-    "capnpc/test/external-crate",
-    "capnpc/test-edition-2015",
-    "capnpc/test-edition-2018",
-    "capnpc/test-edition-2021",
-    "capnp-futures/test",
-    "capnp-rpc/examples/hello-world",
-    "capnp-rpc/examples/calculator",
-    "capnp-rpc/examples/pubsub",
-    "capnp-rpc/examples/streaming",
-    "capnp-rpc/examples/reconnect",
-    "capnp-rpc/test",
+    "zapc/test",
+    "zapc/test/external-crate",
+    "zapc/test-edition-2015",
+    "zapc/test-edition-2018",
+    "zapc/test-edition-2021",
+    "zap-futures/test",
+    "zap-rpc/examples/hello-world",
+    "zap-rpc/examples/calculator",
+    "zap-rpc/examples/pubsub",
+    "zap-rpc/examples/streaming",
+    "zap-rpc/examples/reconnect",
+    "zap-rpc/test",
     "example/addressbook",
     "example/addressbook_send",
     "example/fill_random_values",
 ]
 default-members = [
-    "capnp",
-    "capnpc",
+    "zap",
+    "zapc",
 ]
 
 [workspace.lints]

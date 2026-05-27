@@ -1,0 +1,32 @@
+[package]
+
+name = "zapc"
+version = "0.25.0"
+authors = [ "David Renshaw <dwrenshaw@gmail.com>" ]
+license = "MIT"
+description = "ZAP code generation"
+repository = "https://github.com/zap-proto/rust"
+documentation = "https://docs.rs/zapc/"
+edition = "2021"
+
+readme = "README.md"
+
+keywords = ["encoding", "protocol", "serialization"]
+
+[[bin]]
+
+name = "zapc"
+path = "src/zapc-rust.rs"
+
+[[bin]]
+
+name = "zapc-rust-bootstrap"
+path = "src/zapc-rust-bootstrap.rs"
+
+
+[dependencies.zap]
+version = "0.25.0"
+path = "../zap"
+
+[lints]
+workspace = true

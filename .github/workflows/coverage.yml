@@ -13,10 +13,10 @@ jobs:
       - name: checkout source
         uses: actions/checkout@v4
 
-      - name: Install Cap'n Proto
+      - name: Install ZAP
         run: |
             export DEBIAN_FRONTEND=noninteractive
-            sudo apt-get install -y capnproto libcapnp-dev
+            sudo apt-get install -y zap libzap-dev
 
       - uses: dtolnay/rust-toolchain@nightly
 

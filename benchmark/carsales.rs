@@ -19,17 +19,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use crate::carsales_capnp::{car, parking_lot, total_value, Color};
+use crate::carsales_zap::{car, parking_lot, total_value, Color};
 use crate::common::*;
 
 trait CarValue {
-    fn car_value(self) -> ::capnp::Result<u64>;
+    fn car_value(self) -> ::zap::Result<u64>;
 }
 
 macro_rules! car_value_impl(
     ($typ:ident) => (
             impl <'a> CarValue for car::$typ<'a> {
-                fn car_value (mut self) -> ::capnp::Result<u64> {
+                fn car_value (mut self) -> ::zap::Result<u64> {
                     #![allow(unused_mut)]
                     let mut result : u64 = 0;
                     result += self.reborrow().get_seats() as u64 * 200;
@@ -153,7 +153,7 @@ impl crate::TestCase for CarSales {
         &self,
         request: parking_lot::Reader,
         mut response: total_value::Builder,
-    ) -> ::capnp::Result<()> {
+    ) -> ::zap::Result<()> {
         let mut result = 0;
         for car in request.get_cars()? {
             result += car.car_value()?;
@@ -162,11 +162,11 @@ impl crate::TestCase for CarSales {
         Ok(())
     }
 
-    fn check_response(&self, response: total_value::Reader, expected: u64) -> ::capnp::Result<()> {
+    fn check_response(&self, response: total_value::Reader, expected: u64) -> ::zap::Result<()> {
         if response.get_amount() == expected {
             Ok(())
         } else {
-            Err(::capnp::Error::failed(format!(
+            Err(::zap::Error::failed(format!(
                 "check_response() expected {} but got {}",
                 expected,
                 response.get_amount()

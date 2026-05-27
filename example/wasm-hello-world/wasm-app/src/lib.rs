@@ -7,7 +7,7 @@ extern crate alloc;
 use alloc::alloc::{GlobalAlloc, Layout};
 use core::panic::PanicInfo;
 
-// Allocator that fails on every allocation. This is to show that we can read capnproto
+// Allocator that fails on every allocation. This is to show that we can read zap
 // messages without doing any allocations.
 struct NullAllocator;
 
@@ -29,18 +29,18 @@ fn panic(_: &PanicInfo) -> ! {
     core::intrinsics::abort()
 }
 
-pub mod wasm_hello_world_capnp {
-  include!(concat!(env!("OUT_DIR"), "/wasm_hello_world_capnp.rs"));
+pub mod wasm_hello_world_zap {
+  include!(concat!(env!("OUT_DIR"), "/wasm_hello_world_zap.rs"));
 }
 
 #[no_mangle]
 pub extern "C" fn add_numbers(ptr: i32, len: i32) -> i32 {
     let buf: &[u8] = unsafe { core::slice::from_raw_parts(ptr as *const u8, len as usize) };
     let segments = &[buf];
-    let message = capnp::message::Reader::new(capnp::message::SegmentArray::new(segments),
+    let message = zap::message::Reader::new(zap::message::SegmentArray::new(segments),
                                               core::default::Default::default());
 
-    let foo = message.get_root::<wasm_hello_world_capnp::foo::Reader>().unwrap();
+    let foo = message.get_root::<wasm_hello_world_zap::foo::Reader>().unwrap();
     let numbers = foo.get_numbers().unwrap();
 
     let mut total: i32 = 0;

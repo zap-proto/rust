@@ -1,6 +1,6 @@
 fn main() {
-    ::capnpc::CompilerCommand::new()
-        .file("addressbook.capnp")
+    ::zapc::CompilerCommand::new()
+        .file("addressbook.zap")
         .run()
         .expect("compiling schema");
 }

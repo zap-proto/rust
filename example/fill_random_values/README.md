@@ -2,8 +2,8 @@
 
 This example demonstrates one possible use of runtime type instropection.
 
-The library code in `src/lib.rs` can be used to fill in random data for any Cap'n Proto
-type. The annotations in `fill.capnp` can be used to add contraints on
+The library code in `src/lib.rs` can be used to fill in random data for any ZAP
+type. The annotations in `fill.zap` can be used to add contraints on
 the random generation.
 
 See `fill_addressbook.rs` and `fill_shapes.rs` for example usage.

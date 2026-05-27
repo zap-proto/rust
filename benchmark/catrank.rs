@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use crate::catrank_capnp::*;
+use crate::catrank_zap::*;
 use crate::common::*;
 
 #[derive(Clone, Copy)]
@@ -94,7 +94,7 @@ impl crate::TestCase for CatRank {
         &self,
         request: search_result_list::Reader,
         response: search_result_list::Builder,
-    ) -> ::capnp::Result<()> {
+    ) -> ::zap::Result<()> {
         let mut scored_results: Vec<ScoredResult> = Vec::new();
 
         let results = request.get_results()?;
@@ -136,7 +136,7 @@ impl crate::TestCase for CatRank {
         &self,
         response: search_result_list::Reader,
         expected_good_count: i32,
-    ) -> ::capnp::Result<()> {
+    ) -> ::zap::Result<()> {
         let mut good_count: i32 = 0;
         let results = response.get_results()?;
         for result in results {
@@ -150,7 +150,7 @@ impl crate::TestCase for CatRank {
         if good_count == expected_good_count {
             Ok(())
         } else {
-            Err(::capnp::Error::failed(format!(
+            Err(::zap::Error::failed(format!(
                 "check_response() expected {expected_good_count} but got {good_count}"
             )))
         }

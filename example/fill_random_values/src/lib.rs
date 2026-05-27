@@ -1,35 +1,35 @@
 use rand::distr::uniform::SampleUniform;
 use rand::Rng;
 
-use capnp::introspect::TypeVariant;
-use capnp::schema;
-use capnp::{dynamic_struct, dynamic_value};
+use zap::introspect::TypeVariant;
+use zap::schema;
+use zap::{dynamic_struct, dynamic_value};
 
-capnp::generated_code!(pub mod fill_capnp);
+zap::generated_code!(pub mod fill_zap);
 
 pub struct Filler<R: Rng> {
     rng: R,
     recursion_limit: u32,
 }
 
-fn get_range<T>(r: dynamic_struct::Reader) -> ::capnp::Result<std::ops::RangeInclusive<T>>
+fn get_range<T>(r: dynamic_struct::Reader) -> ::zap::Result<std::ops::RangeInclusive<T>>
 where
-    T: for<'a> ::capnp::dynamic_value::DowncastReader<'a>,
+    T: for<'a> ::zap::dynamic_value::DowncastReader<'a>,
 {
     Ok(r.get_named("min")?.downcast::<T>()..=r.get_named("max")?.downcast::<T>())
 }
 
 fn set_from_range<T, R>(
     rng: &mut R,
-    a: ::capnp::schema::Annotation,
-    mut builder: ::capnp::dynamic_struct::Builder,
-    field: ::capnp::schema::Field,
-) -> ::capnp::Result<()>
+    a: ::zap::schema::Annotation,
+    mut builder: ::zap::dynamic_struct::Builder,
+    field: ::zap::schema::Field,
+) -> ::zap::Result<()>
 where
-    T: for<'a> ::capnp::dynamic_value::DowncastReader<'a>
+    T: for<'a> ::zap::dynamic_value::DowncastReader<'a>
         + SampleUniform
         + PartialOrd
-        + for<'a> Into<::capnp::dynamic_value::Reader<'a>>,
+        + for<'a> Into<::zap::dynamic_value::Reader<'a>>,
     R: Rng,
 {
     let x: T = rng.random_range(get_range::<T>(a.get_value()?.downcast())?);
@@ -44,21 +44,21 @@ impl<R: Rng> Filler<R> {
         }
     }
 
-    fn random_enum_value(&mut self, e: schema::EnumSchema) -> ::capnp::Result<dynamic_value::Enum> {
+    fn random_enum_value(&mut self, e: schema::EnumSchema) -> ::zap::Result<dynamic_value::Enum> {
         let enumerants = e.get_enumerants()?;
         let idx = self.rng.random_range(0..enumerants.len());
         let value = enumerants.get(idx).get_ordinal();
-        Ok(::capnp::dynamic_value::Enum::new(value, e))
+        Ok(::zap::dynamic_value::Enum::new(value, e))
     }
 
-    fn fill_text(&mut self, mut builder: ::capnp::text::Builder) {
+    fn fill_text(&mut self, mut builder: ::zap::text::Builder) {
         builder.clear();
         for _ in 0..builder.len() {
             builder.push_ascii(self.rng.random_range(b'a'..=b'z'));
         }
     }
 
-    fn fill_data(&mut self, builder: ::capnp::data::Builder) {
+    fn fill_data(&mut self, builder: ::zap::data::Builder) {
         for b in builder {
             *b = self.rng.random();
         }
@@ -67,45 +67,45 @@ impl<R: Rng> Filler<R> {
     fn fill_field(
         &mut self,
         recursion_depth: u32,
-        mut builder: ::capnp::dynamic_struct::Builder,
-        field: ::capnp::schema::Field,
-    ) -> ::capnp::Result<()> {
+        mut builder: ::zap::dynamic_struct::Builder,
+        field: ::zap::schema::Field,
+    ) -> ::zap::Result<()> {
         let annotations = field.get_annotations()?;
         for annotation in annotations {
-            if annotation.get_id() == fill_capnp::select_from::choices::ID {
+            if annotation.get_id() == fill_zap::select_from::choices::ID {
                 if let TypeVariant::List(element_type) = annotation.get_type().which() {
                     if !element_type.loose_equals(field.get_type()) {
-                        return Err(::capnp::Error::failed(
+                        return Err(::zap::Error::failed(
                             "choices annotation element type mismatch".into(),
                         ));
                     }
                 } else {
-                    return Err(::capnp::Error::failed(
+                    return Err(::zap::Error::failed(
                         "choices annotation was not of List type".into(),
                     ));
                 }
-                let choices: capnp::dynamic_list::Reader<'_> = annotation.get_value()?.downcast();
+                let choices: zap::dynamic_list::Reader<'_> = annotation.get_value()?.downcast();
                 let idx = self.rng.random_range(0..choices.len());
                 return builder.set(field, choices.get(idx).unwrap());
-            } else if annotation.get_id() == fill_capnp::int8_range::ID {
+            } else if annotation.get_id() == fill_zap::int8_range::ID {
                 return set_from_range::<i8, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::int16_range::ID {
+            } else if annotation.get_id() == fill_zap::int16_range::ID {
                 return set_from_range::<i16, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::int32_range::ID {
+            } else if annotation.get_id() == fill_zap::int32_range::ID {
                 return set_from_range::<i32, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::int64_range::ID {
+            } else if annotation.get_id() == fill_zap::int64_range::ID {
                 return set_from_range::<i64, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::uint8_range::ID {
+            } else if annotation.get_id() == fill_zap::uint8_range::ID {
                 return set_from_range::<u8, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::uint16_range::ID {
+            } else if annotation.get_id() == fill_zap::uint16_range::ID {
                 return set_from_range::<u16, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::uint32_range::ID {
+            } else if annotation.get_id() == fill_zap::uint32_range::ID {
                 return set_from_range::<u32, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::uint64_range::ID {
+            } else if annotation.get_id() == fill_zap::uint64_range::ID {
                 return set_from_range::<u64, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::float32_range::ID {
+            } else if annotation.get_id() == fill_zap::float32_range::ID {
                 return set_from_range::<f32, R>(&mut self.rng, annotation, builder, field);
-            } else if annotation.get_id() == fill_capnp::float64_range::ID {
+            } else if annotation.get_id() == fill_zap::float64_range::ID {
                 return set_from_range::<f64, R>(&mut self.rng, annotation, builder, field);
             }
         }
@@ -124,7 +124,7 @@ impl<R: Rng> Filler<R> {
             TypeVariant::Float32 => builder.set(field, self.rng.random::<f32>().into()),
             TypeVariant::Float64 => builder.set(field, self.rng.random::<f64>().into()),
             TypeVariant::Text => {
-                if annotations.find(fill_capnp::phone_number::ID).is_some() {
+                if annotations.find(fill_zap::phone_number::ID).is_some() {
                     builder.set(
                         field,
                         format!(
@@ -156,7 +156,7 @@ impl<R: Rng> Filler<R> {
             TypeVariant::List(_) => {
                 let annotations = field.get_annotations()?;
                 let len;
-                if let Some(len_range) = annotations.find(fill_capnp::length_range::ID) {
+                if let Some(len_range) = annotations.find(fill_zap::length_range::ID) {
                     let len_range: dynamic_struct::Reader<'_> = len_range.get_value()?.downcast();
                     let min: u32 = len_range.get_named("min")?.downcast();
                     let max: u32 = len_range.get_named("max")?.downcast();
@@ -179,9 +179,9 @@ impl<R: Rng> Filler<R> {
     fn fill_list_element(
         &mut self,
         recursion_depth: u32,
-        mut builder: ::capnp::dynamic_list::Builder,
+        mut builder: ::zap::dynamic_list::Builder,
         index: u32,
-    ) -> ::capnp::Result<()> {
+    ) -> ::zap::Result<()> {
         match builder.element_type().which() {
             TypeVariant::Void => Ok(()),
             TypeVariant::Bool => builder.set(index, self.rng.random::<bool>().into()),
@@ -220,8 +220,8 @@ impl<R: Rng> Filler<R> {
     fn fill_list(
         &mut self,
         recursion_depth: u32,
-        mut builder: ::capnp::dynamic_list::Builder,
-    ) -> ::capnp::Result<()> {
+        mut builder: ::zap::dynamic_list::Builder,
+    ) -> ::zap::Result<()> {
         for idx in 0..builder.len() {
             self.fill_list_element(recursion_depth, builder.reborrow(), idx)?;
         }
@@ -231,8 +231,8 @@ impl<R: Rng> Filler<R> {
     fn fill_struct(
         &mut self,
         recursion_depth: u32,
-        mut builder: ::capnp::dynamic_struct::Builder,
-    ) -> ::capnp::Result<()> {
+        mut builder: ::zap::dynamic_struct::Builder,
+    ) -> ::zap::Result<()> {
         let schema = builder.get_schema();
         let non_union_fields = schema.get_non_union_fields()?;
         for field in non_union_fields {
@@ -250,7 +250,7 @@ impl<R: Rng> Filler<R> {
         Ok(())
     }
 
-    pub fn fill(&mut self, builder: ::capnp::dynamic_struct::Builder) -> ::capnp::Result<()> {
+    pub fn fill(&mut self, builder: ::zap::dynamic_struct::Builder) -> ::zap::Result<()> {
         self.fill_struct(0, builder)
     }
 }

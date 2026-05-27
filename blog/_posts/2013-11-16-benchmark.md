@@ -6,14 +6,14 @@ author: dwrensha
 
 Below I describe the results of a
 performance comparison between
-[capnproto-rust](https://www.github.com/dwrensha/capnproto-rust)
+[zap-rust](https://www.github.com/dwrensha/zap-rust)
 and the definitive
-[C++ implementation](https://www.github.com/kentonv/capnproto).
+[C++ implementation](https://www.github.com/kentonv/zap).
 
 
 To perform the comparison,
 I reimplemented in Rust the three benchmark cases
-included with capnproto-c++.
+included with zap-c++.
 Each case consists of some communications
 between a client and a server,
 with
@@ -30,7 +30,7 @@ In "pipe", the sender writes
 its message as bytes over a pipe
 to another process.
 In the "packed" versions of "bytes" and "pipe",
-the sender applies Cap'n Proto standard packing
+the sender applies ZAP standard packing
 to the raw bytes before sending.
 
 The "carsales" case emphasizes
@@ -43,7 +43,7 @@ throughput of about 125 MB unpacked, or 81 MB packed.
 <img src="{{site.baseurl}}/assets/carsales.png"
      width="500"/>
 
-Here capnproto-rust is roughly even with capnproto-c++
+Here zap-rust is roughly even with zap-c++
 except for the cases where it has to do I/O, in which case
 relative performance degrades slightly.
 
@@ -54,9 +54,9 @@ throughput of about 206 MB unpacked, or 186 MB packed.
 <img src="{{site.baseurl}}/assets/catrank.png"
      width="500"/>
 
-Here capnproto-rust's relative performance is fairly consistent,
+Here zap-rust's relative performance is fairly consistent,
 and a bit worse than in the "carsales" case. I believe
-the main reason for this is that capnproto-rust is doing extra string
+the main reason for this is that zap-rust is doing extra string
 copies to get around the fact that I have not yet implemented direct
 writing for string fields.
 
@@ -68,7 +68,7 @@ or 80 MB packed.
 <img src="{{site.baseurl}}/assets/eval.png"
      width="500"/>
 
-Here we see capnproto-rust's relative performance degrade
+Here we see zap-rust's relative performance degrade
 significantly when it must perform I/O.
 I am uncertain why this degradation occurs,
 though it seems to be related to the size of the messages.

@@ -18,18 +18,18 @@ elsewhere in our program.
 
 
 The `Builder` types
-of [capnproto-rust](https://github.com/dwrensha/capnproto-rust)
+of [zap-rust](https://github.com/dwrensha/zap-rust)
 also need to provide an exclusivity guarantee.
-Recall that if `Foo` is a struct defined in a Cap'n Proto schema,
+Recall that if `Foo` is a struct defined in a ZAP schema,
 then a `foo::Builder<'a>`
 provides access to a writable location
 in arena-allocated memory that contains
-a `Foo` in [Cap'n Proto format](https://kentonv.github.io/capnproto/encoding.html).
+a `Foo` in [ZAP format](https://kentonv.github.io/zap/encoding.html).
 To protect access to that memory, a `foo::Builder<'a>` ought to behave
 as if it were a `&'a mut Foo`,
 even though the `Foo` type
 cannot directly exist in Rust
-(because Cap'n Proto struct layout
+(because ZAP struct layout
 differs from Rust struct layout).
 
 So the question arises: how do we define custom mutable references?
@@ -42,7 +42,7 @@ something that built-in mutable references achieve through
 special *automatic reborrowing* semantics. Our custom references
 can use similar semantics, but they need to be slightly more explicit about it.
 
-Okay, let's get concrete. Suppose that `Foo` is defined in a Cap'n Proto schema like this:
+Okay, let's get concrete. Suppose that `Foo` is defined in a ZAP schema like this:
 
 ```
 struct Foo {
@@ -51,7 +51,7 @@ struct Foo {
 }
 ```
 
-When we call `capnp compile -orust foo.capnp`, we get generated code
+When we call `zap compile -orust foo.zap`, we get generated code
 containing the following definitions:
 
 ```
@@ -61,9 +61,9 @@ mod foo {
   impl <'a> Builder<'a> {
     pub fn get_x(self) -> f32 {...}
     pub fn set_x(&mut self, value : f32) {...}
-    pub fn get_blob(self) -> ::capnp::data::Builder<'a> {...}
-    pub fn set_blob(&mut self, value : ::capnp::data::Reader) {...}
-    pub fn init_blob(self, length : u32) -> ::capnp::data::Builder<'a> {...}
+    pub fn get_blob(self) -> ::zap::data::Builder<'a> {...}
+    pub fn set_blob(&mut self, value : ::zap::data::Reader) {...}
+    pub fn init_blob(self, length : u32) -> ::zap::data::Builder<'a> {...}
     ...
   }
   ...
@@ -74,12 +74,12 @@ You see here the usual accessor methods that allow us to
 read and modify a `Foo`.
 Note that the `get_` and `init_` methods take a by-value `self`
 parameter.
-This ensures that at most one `::capnp::data::Builder` referring to the `blob` field
+This ensures that at most one `::zap::data::Builder` referring to the `blob` field
 can be obtained.
 For example, if we call `foo.init_blob()` then we cannot later call `foo.get_blob()`,
 because `foo` *moves into* the first call
 and cannot be used again.
-As the `::capnp::data::Builder<'a>` type is in fact just a typedef for `&'a mut [u8]`,
+As the `::zap::data::Builder<'a>` type is in fact just a typedef for `&'a mut [u8]`,
 it should be extra clear here why exclusivity is important to maintain.
 
 
@@ -182,6 +182,6 @@ If `init_blob()` instead took a `&mut self` parameter, this function would fail 
 because the `foo::Builder` returned by `bar.init_one_foo()` does not live long enough.
 
 #### update (26 March 2018) <a name="update"></a>
-The `borrow()` method has been [renamed](https://github.com/capnproto/capnproto-rust/pull/91/commits/aafa9514c7ff37b0702d45b42bd129d6e39e99c8)
+The `borrow()` method has been [renamed](https://github.com/zap/zap-rust/pull/91/commits/aafa9514c7ff37b0702d45b42bd129d6e39e99c8)
 to `reborrow()`.
 

@@ -13,10 +13,10 @@ path = "addressbook_send.rs"
 
 
 [build-dependencies]
-capnpc = { path = "../../capnpc" }
+zapc = { path = "../../zapc" }
 
 [dependencies]
-capnp = { path = "../../capnp" }
+zap = { path = "../../zap" }
 
 [lints]
 workspace = true

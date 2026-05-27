@@ -4,7 +4,7 @@ version = "0.0.1"
 license = "MIT"
 description = "Helper library for writing async tests"
 
-repository = "https://github.com/dwrensha/capnproto-rust"
+repository = "https://github.com/zap-proto/rust"
 edition = "2021"
 
 [dependencies.futures]

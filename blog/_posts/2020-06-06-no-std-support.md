@@ -5,48 +5,48 @@ author: dwrensha
 ---
 
 Over the past few years,
-[many people have expressed interest](https://github.com/capnproto/capnproto-rust/issues/71)
-in using capnproto-rust in [no_std](https://rust-embedded.github.io/book/intro/no-std.html) environments
+[many people have expressed interest](https://github.com/zap/zap-rust/issues/71)
+in using zap-rust in [no_std](https://rust-embedded.github.io/book/intro/no-std.html) environments
 -- that is, without pulling in the Rust standard library.
 Today I'm happy to announce that the latest release, version 0.13.0, supports that.
 
-To use a `no_std` capnproto-rust,
-update your `Cargo.toml` to the new `capnp` version and disable default features, like this:
+To use a `no_std` zap-rust,
+update your `Cargo.toml` to the new `zap` version and disable default features, like this:
 
 ```toml
-[capnp.dependencies]
+[zap.dependencies]
 version = "0.13"
 default-features = false
 ```
 
 This turns off the new
-["std" feature flag](https://github.com/capnproto/capnproto-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/capnp/Cargo.toml#L36-L38)
-in the `capnp` crate.
+["std" feature flag](https://github.com/zap/zap-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/zap/Cargo.toml#L36-L38)
+in the `zap` crate.
 In turn, that feature controls a
-[crate-level `no_std` attribute](https://github.com/capnproto/capnproto-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/capnp/src/lib.rs#L30)
+[crate-level `no_std` attribute](https://github.com/zap/zap-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/zap/src/lib.rs#L30)
 and gates the parts of the crate that depend on the standard library.
 
 ## Example
 
-To see `no_std` capnproto-rust in action,
-check out this [new example](https://github.com/capnproto/capnproto-rust/tree/master/example/wasm-hello-world)
-that passes data to a WebAssembly function through a Cap'n Proto message.
+To see `no_std` zap-rust in action,
+check out this [new example](https://github.com/zap/zap-rust/tree/master/example/wasm-hello-world)
+that passes data to a WebAssembly function through a ZAP message.
 I observed the size of this example's generated wasm code to shrink from
 1.6MB down to 660KB when I added `#![no_std]`.
 
 ## I/O traits
 
-The biggest challenge in getting capnproto-rust to work with `no_std` was dealing with
+The biggest challenge in getting zap-rust to work with `no_std` was dealing with
 input/output traits.
-In previous releases, capnproto-rust defined its main serialization functions in terms of
+In previous releases, zap-rust defined its main serialization functions in terms of
 `std::io::Read` and `std::io::Write`. That would be a problem in a `no_std` context,
 because those traits are [stuck in `std`](https://github.com/rust-lang/rust/issues/48331).
 
 The solution I settled on was to define custom
-[`capnp::io::Read`](https://github.com/capnproto/capnproto-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/capnp/src/io.rs#L9)
+[`zap::io::Read`](https://github.com/zap/zap-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/zap/src/io.rs#L9)
 and
-[`capnp::io::Write`](https://github.com/capnproto/capnproto-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/capnp/src/io.rs#L44)
-traits, and then to define the `capnp` serialization functions in terms of those.
+[`zap::io::Write`](https://github.com/zap/zap-rust/blob/e2836823318d95668f10443d9f2feea8378ae95f/zap/src/io.rs#L44)
+traits, and then to define the `zap` serialization functions in terms of those.
 
 Blanket impls like the following then allow existing call sites to
 continue to work without being altered:
@@ -68,12 +68,12 @@ mod std_impls {
 Two recent Rust developments paved the way for today's release:
 
  1. The [stabilization of the alloc crate](https://github.com/rust-lang/rust/pull/59675)
-    means that collections like `Vec` are now usable with `no_std`. (capnproto-rust strives
+    means that collections like `Vec` are now usable with `no_std`. (zap-rust strives
     to minimize allocations, but still relies on the global allocator for some things like
     messages with a dynamic number of segments.)
  2. [no_std support for async/await](https://github.com/rust-lang/rust/pull/69033) means that
     we can use `async` blocks wherever we want. Previously, we would have needed to define
-    some custom `Future` implementations to avoid putting an `async` block in the `capnp` crate.
+    some custom `Future` implementations to avoid putting an `async` block in the `zap` crate.
 
 ## Thanks
 

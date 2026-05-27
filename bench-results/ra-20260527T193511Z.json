@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "host": {"hostname":"ra","os":"macos","arch":"aarch64"},
+  "toolchain": {"rustc":"rustc 1.95.0 (59807616e 2026-04-14) (Homebrew)"},
+  "iters": {"carsales":500,"catrank":50,"eval":10000},
+  "runs": [
+    {"case":"carsales","mode":"object","compression":"none","scratch":"reuse","iters":500,"elapsed_secs":0.260886,"throughput_ops_per_sec":1916.5},
+    {"case":"carsales","mode":"object","compression":"none","scratch":"no-reuse","iters":500,"elapsed_secs":0.011232,"throughput_ops_per_sec":44515.8},
+    {"case":"carsales","mode":"bytes","compression":"none","scratch":"reuse","iters":500,"elapsed_secs":0.012229,"throughput_ops_per_sec":40887.3},
+    {"case":"carsales","mode":"bytes","compression":"none","scratch":"no-reuse","iters":500,"elapsed_secs":0.012656,"throughput_ops_per_sec":39506.7},
+    {"case":"carsales","mode":"bytes","compression":"packed","scratch":"reuse","iters":500,"elapsed_secs":0.022127,"throughput_ops_per_sec":22596.4},
+    {"case":"carsales","mode":"bytes","compression":"packed","scratch":"no-reuse","iters":500,"elapsed_secs":0.022509,"throughput_ops_per_sec":22213.2},
+    {"case":"carsales","mode":"pipe","compression":"none","scratch":"reuse","iters":500,"elapsed_secs":0.030357,"throughput_ops_per_sec":16470.7},
+    {"case":"carsales","mode":"pipe","compression":"none","scratch":"no-reuse","iters":500,"elapsed_secs":0.045953,"throughput_ops_per_sec":10880.7},
+    {"case":"carsales","mode":"pipe","compression":"packed","scratch":"reuse","iters":500,"elapsed_secs":0.062478,"throughput_ops_per_sec":8002.9},
+    {"case":"carsales","mode":"pipe","compression":"packed","scratch":"no-reuse","iters":500,"elapsed_secs":0.048263,"throughput_ops_per_sec":10360.0},
+    {"case":"catrank","mode":"object","compression":"none","scratch":"no-reuse","iters":50,"elapsed_secs":0.028687,"throughput_ops_per_sec":1742.9},
+    {"case":"catrank","mode":"bytes","compression":"none","scratch":"no-reuse","iters":50,"elapsed_secs":0.027769,"throughput_ops_per_sec":1800.5},
+    {"case":"catrank","mode":"bytes","compression":"packed","scratch":"no-reuse","iters":50,"elapsed_secs":0.032075,"throughput_ops_per_sec":1558.8},
+    {"case":"catrank","mode":"pipe","compression":"none","scratch":"no-reuse","iters":50,"elapsed_secs":0.029441,"throughput_ops_per_sec":1698.3},
+    {"case":"catrank","mode":"pipe","compression":"packed","scratch":"no-reuse","iters":50,"elapsed_secs":0.035877,"throughput_ops_per_sec":1393.6},
+    {"case":"eval","mode":"object","compression":"none","scratch":"no-reuse","iters":10000,"elapsed_secs":0.025938,"throughput_ops_per_sec":385539.1},
+    {"case":"eval","mode":"bytes","compression":"none","scratch":"no-reuse","iters":10000,"elapsed_secs":0.029484,"throughput_ops_per_sec":339167.5},
+    {"case":"eval","mode":"bytes","compression":"packed","scratch":"no-reuse","iters":10000,"elapsed_secs":0.045671,"throughput_ops_per_sec":218955.1},
+    {"case":"eval","mode":"pipe","compression":"none","scratch":"no-reuse","iters":10000,"elapsed_secs":0.109929,"throughput_ops_per_sec":90968.0},
+    {"case":"eval","mode":"pipe","compression":"packed","scratch":"no-reuse","iters":10000,"elapsed_secs":0.120468,"throughput_ops_per_sec":83009.7}
+  ]
+}

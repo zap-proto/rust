@@ -21,20 +21,20 @@
 
 use std::io;
 
-use capnp::traits::Owned;
-use capnp::{message, serialize, serialize_packed};
+use zap::traits::Owned;
+use zap::{message, serialize, serialize_packed};
 
 pub mod common;
 
-capnp::generated_code!(pub mod carsales_capnp);
+zap::generated_code!(pub mod carsales_zap);
 
 pub mod carsales;
 
-capnp::generated_code!(pub mod catrank_capnp);
+zap::generated_code!(pub mod catrank_zap);
 
 pub mod catrank;
 
-capnp::generated_code!(pub mod eval_capnp);
+zap::generated_code!(pub mod eval_zap);
 
 pub mod eval;
 
@@ -52,12 +52,12 @@ trait TestCase {
         &self,
         r: <Self::Request as Owned>::Reader<'_>,
         b: <Self::Response as Owned>::Builder<'_>,
-    ) -> ::capnp::Result<()>;
+    ) -> ::zap::Result<()>;
     fn check_response(
         &self,
         r: <Self::Response as Owned>::Reader<'_>,
         e: Self::Expectation,
-    ) -> ::capnp::Result<()>;
+    ) -> ::zap::Result<()>;
 }
 
 trait Serialize {
@@ -65,7 +65,7 @@ trait Serialize {
         &self,
         read: &mut R,
         options: message::ReaderOptions,
-    ) -> ::capnp::Result<message::Reader<::capnp::serialize::OwnedSegments>>
+    ) -> ::zap::Result<message::Reader<::zap::serialize::OwnedSegments>>
     where
         R: io::BufRead;
 
@@ -73,7 +73,7 @@ trait Serialize {
         &self,
         write: &mut W,
         message: &message::Builder<A>,
-    ) -> ::capnp::Result<()>
+    ) -> ::zap::Result<()>
     where
         W: io::Write,
         A: message::Allocator;
@@ -86,7 +86,7 @@ impl Serialize for NoCompression {
         &self,
         read: &mut R,
         options: message::ReaderOptions,
-    ) -> ::capnp::Result<message::Reader<::capnp::serialize::OwnedSegments>>
+    ) -> ::zap::Result<message::Reader<::zap::serialize::OwnedSegments>>
     where
         R: io::BufRead,
     {
@@ -97,7 +97,7 @@ impl Serialize for NoCompression {
         &self,
         write: &mut W,
         message: &message::Builder<A>,
-    ) -> ::capnp::Result<()>
+    ) -> ::zap::Result<()>
     where
         W: io::Write,
         A: message::Allocator,
@@ -113,7 +113,7 @@ impl Serialize for Packed {
         &self,
         read: &mut R,
         options: message::ReaderOptions,
-    ) -> ::capnp::Result<message::Reader<::capnp::serialize::OwnedSegments>>
+    ) -> ::zap::Result<message::Reader<::zap::serialize::OwnedSegments>>
     where
         R: io::BufRead,
     {
@@ -124,7 +124,7 @@ impl Serialize for Packed {
         &self,
         write: &mut W,
         message: &message::Builder<A>,
-    ) -> ::capnp::Result<()>
+    ) -> ::zap::Result<()>
     where
         W: io::Write,
         A: message::Allocator,
@@ -153,15 +153,15 @@ impl<'a> Scratch<'a> for NoScratch {
 }
 
 pub struct UseScratch {
-    buffer1: Vec<capnp::Word>,
-    buffer2: Vec<capnp::Word>,
+    buffer1: Vec<zap::Word>,
+    buffer2: Vec<zap::Word>,
 }
 
 impl Default for UseScratch {
     fn default() -> Self {
         Self {
-            buffer1: capnp::Word::allocate_zeroed_vec(SCRATCH_SIZE),
-            buffer2: capnp::Word::allocate_zeroed_vec(SCRATCH_SIZE),
+            buffer1: zap::Word::allocate_zeroed_vec(SCRATCH_SIZE),
+            buffer2: zap::Word::allocate_zeroed_vec(SCRATCH_SIZE),
         }
     }
 }
@@ -178,13 +178,13 @@ impl<'a> Scratch<'a> for UseScratch {
     fn get_allocators(&'a mut self) -> (Self::Allocator, Self::Allocator) {
         let Self { buffer1, buffer2 } = self;
         (
-            message::ScratchSpaceHeapAllocator::new(capnp::Word::words_to_bytes_mut(buffer1)),
-            message::ScratchSpaceHeapAllocator::new(capnp::Word::words_to_bytes_mut(buffer2)),
+            message::ScratchSpaceHeapAllocator::new(zap::Word::words_to_bytes_mut(buffer1)),
+            message::ScratchSpaceHeapAllocator::new(zap::Word::words_to_bytes_mut(buffer2)),
         )
     }
 }
 
-fn pass_by_object<S, T>(testcase: T, mut reuse: S, iters: u64) -> ::capnp::Result<()>
+fn pass_by_object<S, T>(testcase: T, mut reuse: S, iters: u64) -> ::zap::Result<()>
 where
     S: for<'a> Scratch<'a>,
     T: TestCase,
@@ -209,7 +209,7 @@ fn pass_by_bytes<C, S, T>(
     mut reuse: S,
     compression: C,
     iters: u64,
-) -> ::capnp::Result<()>
+) -> ::zap::Result<()>
 where
     C: Serialize,
     S: for<'a> Scratch<'a>,
@@ -265,7 +265,7 @@ fn server<C, S, T, R, W>(
     iters: u64,
     mut input: R,
     mut output: W,
-) -> ::capnp::Result<()>
+) -> ::zap::Result<()>
 where
     C: Serialize,
     S: for<'a> Scratch<'a>,
@@ -283,7 +283,7 @@ where
         {
             let response = message_res.init_root();
             let message_reader = compression
-                .read_message(&mut in_buffered, capnp::message::DEFAULT_READER_OPTIONS)?;
+                .read_message(&mut in_buffered, zap::message::DEFAULT_READER_OPTIONS)?;
             let request_reader = message_reader.get_root()?;
             testcase.handle_request(request_reader, response)?;
         }
@@ -299,7 +299,7 @@ fn sync_client<C, S, T>(
     mut reuse: S,
     compression: C,
     iters: u64,
-) -> ::capnp::Result<()>
+) -> ::zap::Result<()>
 where
     C: Serialize,
     S: for<'a> Scratch<'a>,
@@ -329,7 +329,7 @@ where
     Ok(())
 }
 
-fn pass_by_pipe<C, S, T>(testcase: T, reuse: S, compression: C, iters: u64) -> ::capnp::Result<()>
+fn pass_by_pipe<C, S, T>(testcase: T, reuse: S, compression: C, iters: u64) -> ::zap::Result<()>
 where
     C: Serialize,
     S: for<'a> Scratch<'a>,
@@ -376,14 +376,14 @@ pub enum Mode {
 }
 
 impl Mode {
-    pub fn parse(s: &str) -> ::capnp::Result<Self> {
+    pub fn parse(s: &str) -> ::zap::Result<Self> {
         match s {
             "object" => Ok(Self::Object),
             "bytes" => Ok(Self::Bytes),
             "client" => Ok(Self::Client),
             "server" => Ok(Self::Server),
             "pipe" => Ok(Self::Pipe),
-            s => Err(::capnp::Error::failed(format!("unrecognized mode: {s}"))),
+            s => Err(::zap::Error::failed(format!("unrecognized mode: {s}"))),
         }
     }
 }
@@ -394,7 +394,7 @@ fn do_testcase<C, S, T>(
     reuse: S,
     compression: C,
     iters: u64,
-) -> ::capnp::Result<()>
+) -> ::zap::Result<()>
 where
     C: Serialize,
     S: for<'a> Scratch<'a>,
@@ -419,7 +419,7 @@ fn do_testcase1<C, S>(
     scratch: S,
     compression: C,
     iters: u64,
-) -> ::capnp::Result<()>
+) -> ::zap::Result<()>
 where
     C: Serialize,
     S: for<'a> Scratch<'a>,
@@ -428,7 +428,7 @@ where
         "carsales" => do_testcase(carsales::CarSales, mode, scratch, compression, iters),
         "catrank" => do_testcase(catrank::CatRank, mode, scratch, compression, iters),
         "eval" => do_testcase(eval::Eval, mode, scratch, compression, iters),
-        s => Err(::capnp::Error::failed(format!(
+        s => Err(::zap::Error::failed(format!(
             "unrecognized test case: {s}"
         ))),
     }
@@ -440,20 +440,20 @@ fn do_testcase2<C>(
     scratch: &str,
     compression: C,
     iters: u64,
-) -> ::capnp::Result<()>
+) -> ::zap::Result<()>
 where
     C: Serialize,
 {
     match scratch {
         "no-reuse" => do_testcase1(case, mode, NoScratch, compression, iters),
         "reuse" => do_testcase1(case, mode, UseScratch::new(), compression, iters),
-        s => Err(::capnp::Error::failed(format!(
+        s => Err(::zap::Error::failed(format!(
             "unrecognized reuse option: {s}"
         ))),
     }
 }
 
-fn try_main() -> ::capnp::Result<()> {
+fn try_main() -> ::zap::Result<()> {
     let args: Vec<String> = ::std::env::args().collect();
 
     assert!(
@@ -463,7 +463,7 @@ fn try_main() -> ::capnp::Result<()> {
     );
 
     let Ok(iters) = args[5].parse::<u64>() else {
-        return Err(::capnp::Error::failed(format!(
+        return Err(::zap::Error::failed(format!(
             "Could not parse a u64 from: {}",
             args[5]
         )));
@@ -474,7 +474,7 @@ fn try_main() -> ::capnp::Result<()> {
     match &*args[4] {
         "none" => do_testcase2(&args[1], mode, &args[3], NoCompression, iters),
         "packed" => do_testcase2(&args[1], mode, &args[3], Packed, iters),
-        s => Err(::capnp::Error::failed(format!(
+        s => Err(::zap::Error::failed(format!(
             "unrecognized compression: {s}"
         ))),
     }

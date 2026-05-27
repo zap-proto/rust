@@ -1,12 +1,12 @@
-use capnp::dynamic_value;
+use zap::dynamic_value;
 use fill_random_values::Filler;
 
-capnp::generated_code!(pub mod addressbook_capnp);
-capnp::generated_code!(pub mod fill_capnp);
+zap::generated_code!(pub mod addressbook_zap);
+zap::generated_code!(pub mod fill_zap);
 
 pub fn main() {
-    let mut message = ::capnp::message::Builder::new_default();
-    let mut addressbook = message.init_root::<addressbook_capnp::address_book::Builder>();
+    let mut message = ::zap::message::Builder::new_default();
+    let mut addressbook = message.init_root::<addressbook_zap::address_book::Builder>();
 
     let mut filler = Filler::new(::rand::rng(), 10);
     let dynamic: dynamic_value::Builder = addressbook.reborrow().into();

@@ -1,8 +1,8 @@
-use capnp::dynamic_value;
+use zap::dynamic_value;
 use fill_random_values::Filler;
 
-capnp::generated_code!(pub mod shapes_capnp);
-capnp::generated_code!(pub mod fill_capnp);
+zap::generated_code!(pub mod shapes_zap);
+zap::generated_code!(pub mod fill_zap);
 
 #[derive(Clone, Copy, Debug)]
 struct Viewport {
@@ -48,7 +48,7 @@ impl Viewport {
     }
 }
 
-fn color_to_svg(color: shapes_capnp::color::Reader) -> String {
+fn color_to_svg(color: shapes_zap::color::Reader) -> String {
     format!(
         "rgb({}, {}, {})",
         color.get_red(),
@@ -69,8 +69,8 @@ impl SvgBuilder {
     fn canvas_to_svg(
         &mut self,
         view: Viewport,
-        canvas: shapes_capnp::canvas::Reader,
-    ) -> ::capnp::Result<String> {
+        canvas: shapes_zap::canvas::Reader,
+    ) -> ::zap::Result<String> {
         if !canvas.has_background_color() {
             // probably recursion depth was exceeded
             return Ok("".into());
@@ -124,7 +124,7 @@ impl SvgBuilder {
         Ok(result)
     }
 
-    fn base_to_svg(&mut self, canvas: shapes_capnp::canvas::Reader) -> ::capnp::Result<String> {
+    fn base_to_svg(&mut self, canvas: shapes_zap::canvas::Reader) -> ::zap::Result<String> {
         let view = Viewport::new(256.0, 256.0, 512.0, 512.0);
         let c = self.canvas_to_svg(view, canvas)?;
         Ok(format!(
@@ -136,8 +136,8 @@ impl SvgBuilder {
 }
 
 pub fn main() {
-    let mut message = ::capnp::message::Builder::new_default();
-    let mut canvas = message.init_root::<shapes_capnp::canvas::Builder>();
+    let mut message = ::zap::message::Builder::new_default();
+    let mut canvas = message.init_root::<shapes_zap::canvas::Builder>();
 
     let mut filler = Filler::new(::rand::rng(), 10);
     let dynamic: dynamic_value::Builder = canvas.reborrow().into();

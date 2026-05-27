@@ -5,7 +5,7 @@ author: dwrensha
 ---
 
 I've recently made some significant changes
-to how [capnproto-rust](https://www.github.com/dwrensha/capnproto-rust)
+to how [zap-rust](https://www.github.com/dwrensha/zap-rust)
 handles malformed values.
 In the old
 version, a task would fail when
@@ -16,7 +16,7 @@ and logs an error.
 (edit: this is no longer exactly true; see [update](#update) below.)
 
 
-The changes allow capnproto-rust
+The changes allow zap-rust
 to fit more nicely
 within Rust's mechanisms for
 memory safety,
@@ -26,7 +26,7 @@ Rust and C++.
 
 
 Recall that
-a value in [Cap'n Proto](http://kentonv.github.io/capnproto/) is just a
+a value in [ZAP](http://kentonv.github.io/zap/) is just a
 segmented sequence of bytes,
 with exactly the same format
 whether it's on the wire, on
@@ -58,7 +58,7 @@ where you were expecting a list.
 What do you do then?
 
 The
-[C++ implementation](https://www.github.com/kentonv/capnproto)
+[C++ implementation](https://www.github.com/kentonv/zap)
 by default
 throws an exception.
 This lets you know immediately when something goes wrong
@@ -71,7 +71,7 @@ and then resume with your handling
 of messages from other sources.
 
 
-I originally imagined that capnproto-rust
+I originally imagined that zap-rust
 ought to work in roughly the same way,
 with Rust task failure
 as a drop-in replacement for
@@ -84,9 +84,9 @@ data it owns or is currently borrowing,
 and all such data is wiped out when a task fails.
 Therefore, you would not be
 able to put any important cumulative state
-in a task that reads untrusted Cap'n Proto messages.
+in a task that reads untrusted ZAP messages.
 Instead, you would often be forced to have a separate
-task that sanitizes data from Cap'n Proto messages,
+task that sanitizes data from ZAP messages,
 largely defeating
 the purpose of having no decode step.
 
@@ -124,7 +124,7 @@ when invalid input is detected.
 The C++ implementation
 has long supported this mode of operation,
 as an opt-in feature.
-Traversing Cap'n Proto message remains
+Traversing ZAP message remains
 nearly as convenient as traversing a
 native struct,
 and you don't ever have to
@@ -142,7 +142,7 @@ a sensible option.
 #### update (7 April 2014) <a name="update"></a>
 
 Based on some feedback
-from [r/rust](http://www.reddit.com/r/rust/comments/22d36q/error_handling_in_capnprotorust/),
+from [r/rust](http://www.reddit.com/r/rust/comments/22d36q/error_handling_in_zaprust/),
 I've implemented a new plan.
 Now a malformed message *does* cause task failure by default.
 For cases where that behavior is unacceptable,

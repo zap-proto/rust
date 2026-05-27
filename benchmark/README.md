@@ -15,7 +15,7 @@ struct trees with sums), **catrank** (search-result re-ranking), **eval**
 git clone https://github.com/zap-proto/rust
 cd rust
 bash ./benchmark/bench.sh quick      # ~10 sec sanity
-bash ./benchmark/bench.sh default    # ~15 sec — original Cap'n Proto iters
+bash ./benchmark/bench.sh default    # ~15 sec — original ZAP iters
 bash ./benchmark/bench.sh full       # ~3 min  — 10× iters
 ```
 
@@ -111,7 +111,7 @@ budget on your hardware.
 ## Background
 
 The carsales / catrank / eval workload set is the de-facto benchmark
-shape across Cap'n Proto, Protobuf, and FlatBuffers ports — what's run
+shape across ZAP, Protobuf, and FlatBuffers ports — what's run
 here in the Rust SDK is the same shape, ported to ZAP's encoder.
 Numbers should be comparable across language ports of the same suite
 (see [zap-proto/cpp-core/c++/src/benchmark](https://github.com/zap-proto/cpp-core),

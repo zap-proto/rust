@@ -1,0 +1,21 @@
+[package]
+
+name = "zap-futures-test"
+version = "0.0.0"
+authors = [ "David Renshaw <dwrenshaw@gmail.com>"  ]
+build = "build.rs"
+edition = "2021"
+
+[lib]
+
+name = "zap_futures_test"
+path = "test.rs"
+
+[build-dependencies]
+zapc = { path = "../../zapc" }
+
+[dependencies]
+zap-futures = {path = "./../"}
+zap = { path = "../../zap" }
+futures = "0.3.0"
+async-byte-channel = {path = "./../../async-byte-channel"}

@@ -29,14 +29,14 @@ jobs:
       with:
         toolchain: ${{ matrix.rust }}
 
-    - name: Install Cap'n Proto
+    - name: Install ZAP
       run: |
           export DEBIAN_FRONTEND=noninteractive
-          sudo apt-get install -y capnproto libcapnp-dev
+          sudo apt-get install -y zap libzap-dev
 
     - name: Test feature flags
       run: |
-          cd capnp
+          cd zap
           cargo test --no-default-features
           cargo test --features sync_reader
           cargo test --features unaligned
@@ -74,28 +74,28 @@ jobs:
       - name: Setup miri
         run: cargo miri setup
 
-      - name: Install Cap'n Proto
+      - name: Install ZAP
         run: |
             export DEBIAN_FRONTEND=noninteractive
-            sudo apt-get install -y capnproto libcapnp-dev
+            sudo apt-get install -y zap libzap-dev
 
       - name: Test default features
-        run: cargo miri test --package capnp --package capnpc-test
+        run: cargo miri test --package zap --package zapc-test
 
       - name: Test no default features
-        run: cargo miri test --package capnp --package capnpc-test --no-default-features
+        run: cargo miri test --package zap --package zapc-test --no-default-features
 
       - name: Test default features 32-bit
-        run: cargo miri test --package capnp --package capnpc-test --target i686-unknown-linux-gnu
+        run: cargo miri test --package zap --package zapc-test --target i686-unknown-linux-gnu
 
       - name: Test no default features 32-bit
-        run: cargo miri test --package capnp --package capnpc-test --no-default-features --target i686-unknown-linux-gnu
+        run: cargo miri test --package zap --package zapc-test --no-default-features --target i686-unknown-linux-gnu
 
       - name: Test sync_reader
-        run: cargo miri test --package capnp --package capnpc-test --features sync_reader
+        run: cargo miri test --package zap --package zapc-test --features sync_reader
 
       - name: Test unaligned
-        run: cargo miri test --package capnp --package capnpc-test --features unaligned
+        run: cargo miri test --package zap --package zapc-test --features unaligned
 
   minrust:
     name: minrust
@@ -111,14 +111,14 @@ jobs:
       with:
         toolchain: ${{ env.minrust }}
 
-    - name: Install Cap'n Proto
+    - name: Install ZAP
       run: |
           export DEBIAN_FRONTEND=noninteractive
-          sudo apt-get install -y capnproto libcapnp-dev
+          sudo apt-get install -y zap libzap-dev
 
     - name: Test feature flags
       run: |
-          cd capnp
+          cd zap
           cargo test --no-default-features
           cargo test --no-default-features --features alloc
           cargo test --no-default-features --features std
@@ -127,7 +127,7 @@ jobs:
           cd ../
 
     - name: Run tests
-      run: cargo test -p capnp -p capnpc -p capnp-futures -p capnp-rpc
+      run: cargo test -p zap -p zapc -p zap-futures -p zap-rpc
 
   fmt:
     name: formatting
@@ -143,10 +143,10 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - name: Install Cap'n Proto
+      - name: Install ZAP
         run: |
             export DEBIAN_FRONTEND=noninteractive
-            sudo apt-get install -y capnproto libcapnp-dev
+            sudo apt-get install -y zap libzap-dev
 
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master

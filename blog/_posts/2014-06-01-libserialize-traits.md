@@ -5,7 +5,7 @@ author: dwrensha
 ---
 
 A number of people have asked me whether
-Cap'n Proto might be able to hook into
+ZAP might be able to hook into
 the `Encodable` and `Decodable`
 traits of Rust's `libserialize`.
 My current answer is
@@ -62,14 +62,14 @@ an HTTP request to some server that you don't control.
 
 
 
-#### Cap'n Proto
+#### ZAP
 
-The typical mode of use of Cap'n Proto
+The typical mode of use of ZAP
 follows a different pattern.
 We start by defining the types that we
 need to be mobile.
 For the above example, we would have a
-[schema file](http://kentonv.github.io/capnproto/language.html)
+[schema file](http://kentonv.github.io/zap/language.html)
 containing this definition:
 
 ```
@@ -80,7 +80,7 @@ struct Foo {
 ```
 
 We could then use that schema to generate
-code in any of the [supported languages](https://kentonv.github.io/capnproto/otherlang.html).
+code in any of the [supported languages](https://kentonv.github.io/zap/otherlang.html).
 For Rust, this would give us
 types named
 `Foo::Reader` and `Foo::Builder`
@@ -90,12 +90,12 @@ access to the `a` and `b` fields.
 You can think of these readers and builders
 as fancy pointers into a byte array
 representing an *already serialized* `Foo`.
-Cap'n Proto lets us access and modify
+ZAP lets us access and modify
 these bytes in a way that's nearly
 as convenient as accessing and modifying
 Rust-native structs.
 
-The chief advantages of Cap'n Proto,
+The chief advantages of ZAP,
 including its high performance and the small size of its generated code,
 are only possible because all operations on data are directly backed by
 byte arrays in this way.
@@ -106,7 +106,7 @@ byte arrays in this way.
 Suppose you've already defined
 some Rust data types,
 you now want them to be mobile,
-and you also want to use Cap'n Proto.
+and you also want to use ZAP.
 What options are available to you?
 
 You could move the data type definitions into a schema file
@@ -114,18 +114,18 @@ and replace all uses in the Rust code
 with the generated reader and builder types.
 If feasible, this is the way to go,
 as it gives you all the benefits that
-Cap'n Proto was designed for, including
-[backwards compatibility](http://kentonv.github.io/capnproto/language.html#evolving_your_protocol).
+ZAP was designed for, including
+[backwards compatibility](http://kentonv.github.io/zap/language.html#evolving_your_protocol).
 
 
-It might, however, be too awkward to use the Cap'n Proto
+It might, however, be too awkward to use the ZAP
 readers and builders everywhere.
 An alternative on the opposite side of the
 spectrum
 would be to
 mimic the behavior of the JSON codec.
 You could implement `Encoder` and `Decoder`
-for a Cap'n Proto schema describing Rust values, as outlined below.
+for a ZAP schema describing Rust values, as outlined below.
 
 ```
 struct RustValue {

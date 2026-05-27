@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 
 use crate::common::*;
-use crate::eval_capnp::{evaluation_result, expression, Operation};
+use crate::eval_zap::{evaluation_result, expression, Operation};
 
 fn make_expression(rng: &mut FastRand, mut exp: expression::Builder, depth: u32) -> i32 {
     exp.set_op(
@@ -54,7 +54,7 @@ fn make_expression(rng: &mut FastRand, mut exp: expression::Builder, depth: u32)
     }
 }
 
-fn evaluate_expression(exp: expression::Reader) -> ::capnp::Result<i32> {
+fn evaluate_expression(exp: expression::Reader) -> ::zap::Result<i32> {
     let left = match exp.get_left().which()? {
         expression::left::Value(v) => v,
         expression::left::Expression(e) => evaluate_expression(e?)?,
@@ -88,7 +88,7 @@ impl crate::TestCase for Eval {
         &self,
         request: expression::Reader,
         mut response: evaluation_result::Builder,
-    ) -> ::capnp::Result<()> {
+    ) -> ::zap::Result<()> {
         response.set_value(evaluate_expression(request)?);
         Ok(())
     }
@@ -97,11 +97,11 @@ impl crate::TestCase for Eval {
         &self,
         response: evaluation_result::Reader,
         expected: i32,
-    ) -> ::capnp::Result<()> {
+    ) -> ::zap::Result<()> {
         if response.get_value() == expected {
             Ok(())
         } else {
-            Err(::capnp::Error::failed(format!(
+            Err(::zap::Error::failed(format!(
                 "check_response() expected {} but got {}",
                 expected,
                 response.get_value()

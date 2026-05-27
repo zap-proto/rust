@@ -11,11 +11,11 @@ members = ["."]
 [dependencies]
 wasmer = "4.0.0"
 
-[dependencies.capnp]
-path = "../../capnp"
+[dependencies.zap]
+path = "../../zap"
 
-[build-dependencies.capnpc]
-path = "../../capnpc"
+[build-dependencies.zapc]
+path = "../../zapc"
 
 [lints]
 workspace = true

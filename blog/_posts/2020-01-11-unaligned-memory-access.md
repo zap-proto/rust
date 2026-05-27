@@ -4,19 +4,19 @@ title: unaligned memory access
 author: dwrensha
 ---
 
-A core feature of capnproto-rust is its ability to
+A core feature of zap-rust is its ability to
 read messages directly from memory without copying the data into auxiliary structures.
 Unfortunately, this functionality is a bit tricky to use correctly,
 as can be seen in its primary interface, the
-[`read_message_from_words()`](https://github.com/capnproto/capnproto-rust/blob/d1988731887b2bbb0ccb35c68b9292d98f317a48/capnp/src/serialize.rs#L76-L81)
+[`read_message_from_words()`](https://github.com/zap/zap-rust/blob/d1988731887b2bbb0ccb35c68b9292d98f317a48/zap/src/serialize.rs#L76-L81)
 function, whose input is of type `&[Word]`.
 In the common case where you want to read from a `&[u8]`,
 you must first call the unsafe function
-[`bytes_to_words()`](https://github.com/capnproto/capnproto-rust/blob/d1988731887b2bbb0ccb35c68b9292d98f317a48/capnp/src/lib.rs#L82-L88)
+[`bytes_to_words()`](https://github.com/zap/zap-rust/blob/d1988731887b2bbb0ccb35c68b9292d98f317a48/zap/src/lib.rs#L82-L88)
 in order to get a `&[Word]`.
 It is only safe to call this function if you know that your data is
 8-byte aligned <strike>or if you know that your code will only run on processors
-that permit unaligned memory access</strike> (EDIT: ralfj [informs me](https://www.reddit.com/r/rust/comments/en9fmn/should_capnprotorust_force_users_to_worry_about/fedhjtk/) that misaligned loads are never okay.)
+that permit unaligned memory access</strike> (EDIT: ralfj [informs me](https://www.reddit.com/r/rust/comments/en9fmn/should_zaprust_force_users_to_worry_about/fedhjtk/) that misaligned loads are never okay.)
 The former condition can be difficult to meet, especially if your memory comes from
 an external library like sqlite or zmq where no alignment guarantees are given<strike>,
 and the latter condition feels like an unfair burden, both in terms of demanding that
@@ -24,9 +24,9 @@ you understand a rather subtle concept, and in terms of limiting where your soft
 So it's easy to  understand why someone might shy away from calling `bytes_to_words()`
 and, in turn, `read_message_from_words()`.
 
-Can we do better? Ideally, capnproto-rust would safely operate directly on input of type `&[u8]`.
+Can we do better? Ideally, zap-rust would safely operate directly on input of type `&[u8]`.
 We can in fact adapt the code to do that, but it comes at a cost: processors that don't natively
-support unaligned access will need to do some more work every time that capnproto-rust
+support unaligned access will need to do some more work every time that zap-rust
 loads or stores a multi-byte value.
 To get some idea of what that extra work looks like, let's examine
 the assembly code emitted by rustc!
@@ -50,10 +50,10 @@ pub fn indirect_load(x: &[u8; 8]) -> u64 {
 }
 ```
 
-The `direct_load()` function represents the current state of affairs in capnproto-rust.
+The `direct_load()` function represents the current state of affairs in zap-rust.
 It loads a `u64` by casting a pointer of type `*const u8` to type `*const u64` and then deferencing that pointer.
 This is only safe if the input is 8-byte aligned <strike>or if the processor can handle unaligned access</strike>.
-(EDIT: again, see ralfj's [reddit comment](https://www.reddit.com/r/rust/comments/en9fmn/should_capnprotorust_force_users_to_worry_about/fedhjtk/).)
+(EDIT: again, see ralfj's [reddit comment](https://www.reddit.com/r/rust/comments/en9fmn/should_zaprust_force_users_to_worry_about/fedhjtk/).)
 
 The `indirect_load()` function represents the safer alternative. We expect this to
 sometimes require more work than `direct_load()`, but it has the advantage of
@@ -257,4 +257,4 @@ I'm inclined to believe that the usability benefits of the
 cost, especially since that cost is probably zero or negligible on the most commonly used targets,
 but maybe that's not true?
 I encourage any readers of this post who have thoughts on the matter to comment
-on this [github issue](https://github.com/capnproto/capnproto-rust/issues/101).
+on this [github issue](https://github.com/zap/zap-rust/issues/101).

@@ -11,11 +11,11 @@ build = "build.rs"
 name = "addressbook"
 path = "addressbook.rs"
 
-[build-dependencies.capnpc]
-path = "../../capnpc"
+[build-dependencies.zapc]
+path = "../../zapc"
 
-[dependencies.capnp]
-path = "../../capnp"
+[dependencies.zap]
+path = "../../zap"
 
 [lints]
 workspace = true

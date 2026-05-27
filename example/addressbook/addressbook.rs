@@ -19,14 +19,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-capnp::generated_code!(pub mod addressbook_capnp);
+zap::generated_code!(pub mod addressbook_zap);
 
 pub mod addressbook {
-    use crate::addressbook_capnp::{address_book, person};
-    use capnp::serialize_packed;
+    use crate::addressbook_zap::{address_book, person};
+    use zap::serialize_packed;
 
-    pub fn write_address_book() -> ::capnp::Result<()> {
-        let mut message = ::capnp::message::Builder::new_default();
+    pub fn write_address_book() -> ::zap::Result<()> {
+        let mut message = ::zap::message::Builder::new_default();
 
         let address_book = message.init_root::<address_book::Builder>();
         let mut people = address_book.init_people(2);
@@ -67,11 +67,11 @@ pub mod addressbook {
         serialize_packed::write_message(&mut ::std::io::stdout(), &message)
     }
 
-    pub fn print_address_book() -> ::capnp::Result<()> {
+    pub fn print_address_book() -> ::zap::Result<()> {
         let stdin = ::std::io::stdin();
         let message_reader = serialize_packed::read_message(
             &mut stdin.lock(),
-            ::capnp::message::ReaderOptions::new(),
+            ::zap::message::ReaderOptions::new(),
         )?;
         let address_book = message_reader.get_root::<address_book::Reader>()?;
 
@@ -86,7 +86,7 @@ pub mod addressbook {
                     Ok(person::phone_number::Type::Mobile) => "mobile",
                     Ok(person::phone_number::Type::Home) => "home",
                     Ok(person::phone_number::Type::Work) => "work",
-                    Err(::capnp::NotInSchema(_)) => "UNKNOWN",
+                    Err(::zap::NotInSchema(_)) => "UNKNOWN",
                 };
                 println!("  {} phone: {}", type_name, phone.get_number()?.to_str()?);
             }
@@ -103,7 +103,7 @@ pub mod addressbook {
                 Ok(person::employment::SelfEmployed(())) => {
                     println!("  self-employed");
                 }
-                Err(::capnp::NotInSchema(_)) => {}
+                Err(::zap::NotInSchema(_)) => {}
             }
         }
         Ok(())

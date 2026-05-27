@@ -3,6 +3,6 @@
 set -e
 set -x
 
-cargo build -p capnpc
-capnp compile -otarget/debug/capnpc-rust-bootstrap:capnp/src capnp/schema.capnp --src-prefix capnp/ -I. --no-standard-import
-rustfmt capnp/src/schema_capnp.rs
+cargo build -p zapc
+zap compile -otarget/debug/zapc-rust-bootstrap:zap/src zap/schema.zap --src-prefix zap/ -I. --no-standard-import
+rustfmt zap/src/schema_zap.rs
