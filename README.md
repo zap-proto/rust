@@ -1,6 +1,6 @@
 # Cap'n Proto for Rust
 
-> **Docs:** [ZAP Rust SDK](https://zap-proto.dev/docs/sdks/rust) · part of the [ZAP Protocol](https://zap-proto.io)
+> **Docs:** [ZAP Rust SDK](https://zap-proto.dev/docs/sdks/rust) · part of the [ZAP Protocol](https://zap-proto.io); also: [Native ZAP RPC](https://zap-proto.dev/docs/protocols/native)
 
 
 [![Build Status](https://github.com/capnproto/capnproto-rust/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/capnproto/capnproto-rust/actions?query=workflow%3ACI)
