@@ -12,7 +12,7 @@ struct trees with sums), **catrank** (search-result re-ranking), **eval**
 ## Quick run (≈10 seconds on M-class hardware)
 
 ```bash
-./benchmark/bench.sh quick
+bash ./benchmark/bench.sh quick
 ```
 
 Builds release binaries, runs all 20 (case × mode × compression × scratch)
@@ -23,8 +23,8 @@ table.
 ## Full run (≈minutes)
 
 ```bash
-./benchmark/bench.sh default   # original Cap'n Proto iteration counts
-./benchmark/bench.sh full      # 10× iterations — ~10 min on a laptop
+bash ./benchmark/bench.sh default   # original Cap'n Proto iteration counts
+bash ./benchmark/bench.sh full      # 10× iterations — ~10 min on a laptop
 ```
 
 Override individual iteration counts:
