@@ -1,0 +1,29 @@
+[package]
+
+name = "zap-rpc"
+version = "0.25.0"
+authors = [ "David Renshaw <dwrenshaw@gmail.com>" ]
+license = "MIT"
+description = "implementation of the ZAP remote procedure call protocol"
+repository = "https://github.com/zap-proto/rust"
+documentation = "https://docs.rs/zap-rpc/"
+categories = ["network-programming"]
+autoexamples = false
+edition = "2021"
+
+readme = "README.md"
+
+[dependencies.futures]
+version = "0.3.0"
+default-features = false
+features = ["std"]
+
+[dependencies]
+zap-futures = { version = "0.25.0", path = "../zap-futures" }
+zap = {version = "0.25.0", path = "../zap"}
+
+#[lints]
+#workspace = true
+
+[lints.clippy]
+type_complexity = "allow"  # this should be removed in future

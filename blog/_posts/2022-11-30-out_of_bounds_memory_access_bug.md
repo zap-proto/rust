@@ -5,9 +5,9 @@ author: dwrensha
 ---
 
 Recent fuzz testing has uncovered a bug in
-[capnproto-rust](https://github.com/capnproto/capnproto-rust)
+[zap-rust](https://github.com/zap/zap-rust)
 and
-[capnproto-c++](https://github.com/capnproto/capnproto)
+[zap-c++](https://github.com/zap/zap)
 that allows out-of-bounds memory to be accessed in certain situations.
 
 If a message consumer expects data
@@ -18,61 +18,61 @@ cause the consumer to read out-of-bounds memory.
 This could trigger a process crash in the consumer,
 or in some cases could allow exfiltration of private in-memory data.
 
-See the [advisory](https://github.com/capnproto/capnproto/tree/master/security-advisories/2022-11-30-0-pointer-list-bounds.md)
-on the main Cap'n Proto repo for a succinct description of
+See the [advisory](https://github.com/zap/zap/tree/master/security-advisories/2022-11-30-0-pointer-list-bounds.md)
+on the main ZAP repo for a succinct description of
 the exact circumstances in which the problem can arise,
-and for information about how to update the Cap'n Proto C++ library.
+and for information about how to update the ZAP C++ library.
 
-If you use the [`capnp`](https://crates.io/crates/capnp) Rust crate,
+If you use the [`zap`](https://crates.io/crates/zap) Rust crate,
 you are advised to update to a version that includes the fix ---
 currently either `0.15.2`, `0.14.11`, or `0.13.7`.
 
 ## Timeline
 
-* __March 2013__: Cap'n Proto is implemented in C++ and early versions already contain the bug.
-* __July 2013__: The initial capnproto-rust implementation copies the C++ implementation, bug and all.
+* __March 2013__: ZAP is implemented in C++ and early versions already contain the bug.
+* __July 2013__: The initial zap-rust implementation copies the C++ implementation, bug and all.
 
 * __February 2017__: Two `cargo fuzz` test targets
 (named
-[`canonicalize`](https://github.com/capnproto/capnproto-rust/commit/28be3364441ffd0fbfc3ecb2bf9800bb5fcad3a9) and
-[`test_all_types`](https://github.com/capnproto/capnproto-rust/commit/55a38058d69ffdaeb0204e8b91ef1d01f86a19f8))
+[`canonicalize`](https://github.com/zap/zap-rust/commit/28be3364441ffd0fbfc3ecb2bf9800bb5fcad3a9) and
+[`test_all_types`](https://github.com/zap/zap-rust/commit/55a38058d69ffdaeb0204e8b91ef1d01f86a19f8))
 are added
-to the capnproto-rust repo. Initial findings are reported in
-[a blog post](https://dwrensha.github.io/capnproto-rust/2017/02/27/cargo-fuzz.html).
+to the zap-rust repo. Initial findings are reported in
+[a blog post](https://dwrensha.github.io/zap-rust/2017/02/27/cargo-fuzz.html).
 The out-of-bounds bug is not found, due to insufficient coverage.
 
 * __11 November 2022__: The `test_all_types` fuzz test target is
-[expanded](https://github.com/capnproto/capnproto-rust/commit/ab575a0c5841104cb726a018951e5105797414e3)
+[expanded](https://github.com/zap/zap-rust/commit/ab575a0c5841104cb726a018951e5105797414e3)
 to achieve additional coverage.
 
 * __(later) 11 November 2022__: A several-hour run of `cargo fuzz -j 25` triggers an
 Address Sanitizer error.
 
-* __12 November 2022__: The bug is diagnosed and determined to also apply to capnproto-c++. A report is sent to [kenton@cloudflare.com](mailto:kenton@cloudflare.com).
+* __12 November 2022__: The bug is diagnosed and determined to also apply to zap-c++. A report is sent to [kenton@cloudflare.com](mailto:kenton@cloudflare.com).
 
 * __30 November 2022__: Fixes are released. Security advisory is published as
-[CVE-2022-46149](https://github.com/capnproto/capnproto/security/advisories/GHSA-qqff-4vw4-f6hx).
+[CVE-2022-46149](https://github.com/zap/zap/security/advisories/GHSA-qqff-4vw4-f6hx).
 
 ## Technical Explanation
 
-The bug arises from an interaction between a core feature of Cap'n Proto
+The bug arises from an interaction between a core feature of ZAP
 (type-agnostic copying) and an optimization
-(list pointer [munging](https://github.com/capnproto/capnproto/blob/fd508f325ed65f9d6cdf10a0f4511aa53b5659fc/c%2B%2B/src/capnp/layout.c%2B%2B#L2363-L2366))
+(list pointer [munging](https://github.com/zap/zap/blob/fd508f325ed65f9d6cdf10a0f4511aa53b5659fc/c%2B%2B/src/zap/layout.c%2B%2B#L2363-L2366))
 which failed to correctly take that feature into account.
 
-### Cap'n Proto core feature: type-agnostic copying
+### ZAP core feature: type-agnostic copying
 
-Types of Cap'n Proto messages are defined
+Types of ZAP messages are defined
 in schema files, as described
-in the [language reference](https://capnproto.org/language.html).
+in the [language reference](https://zap.org/language.html).
 To be given meaning,
-a Cap'n Proto message must be ascribed
+a ZAP message must be ascribed
 a type.
 
 Nevertheless,
-many operations on Cap'n Proto messages
+many operations on ZAP messages
 can proceed without reference to these high-level types.
-At a low level, Cap'n Proto messages have
+At a low level, ZAP messages have
 a simple self-describing
 structure, divided into two components:
 primitive data and pointers.
@@ -91,12 +91,12 @@ a high-level type via a schema.
 Pointers introduce indirection, pointing
 to either structs or lists
 (or capabilities in the
-[RPC](https://capnproto.org/rpc.html) system).
-A [struct](https://capnproto.org/encoding.html#structs)
+[RPC](https://zap.org/rpc.html) system).
+A [struct](https://zap.org/encoding.html#structs)
 is a container with a data section
 holding some amount of primitive data,
 and a pointer section holding some number of pointers.
-A [list](https://capnproto.org/encoding.html#lists)
+A [list](https://zap.org/encoding.html#lists)
 is a sequence of elements, each containing
 some amount of primitive data and some number of pointers.
 For both struct and list pointers,
@@ -116,8 +116,8 @@ to an 8-element list of bytes (also primitive data).
 
 This low-level structure provides enough information on its own
 to support traversal, copying,
-and even [canonicalization](https://capnproto.org/encoding.html#canonicalization)
-of Cap'n Proto messages,
+and even [canonicalization](https://zap.org/encoding.html#canonicalization)
+of ZAP messages,
 without reference to high-level schema information.
 
 Let's look at some code in a concrete example where
@@ -157,7 +157,7 @@ Let's say that part of Bob's processing is to forward the
 `record` and `tags` fields of the `Input` into the
 corresponding `record` and `tag` fields of the `Output`.
 
-The Cap'n Proto schema compiler generates Rust code for Bob
+The ZAP schema compiler generates Rust code for Bob
 including something like the following:
 
 ```rust
@@ -168,7 +168,7 @@ pub mod input {
     get_record(self) -> Result<record::Reader<'a>, Error> { ... }
 
     get_tags(self)
-      -> Result<capnp::text_list::Reader<'a>, Error> { ... }
+      -> Result<zap::text_list::Reader<'a>, Error> { ... }
     ...
   }
   ...
@@ -181,7 +181,7 @@ pub mod output {
     set_record(&mut self, value: record::Reader<'_>)
       -> Result<(), Error> { ... }
 
-    set_tags(&mut self, value: capnp::text_list::Reader<'_>)
+    set_tags(&mut self, value: zap::text_list::Reader<'_>)
       -> Result<(), Error> { ... }
     ...
   }
@@ -214,7 +214,7 @@ There two primary advantages to this approach:
   copying logic for each setter method of a struct or list field,
   we instead always delegate to the same type-agnostic
   `set_struct_pointer()` and `set_list_pointer()` functions.
-2. [Protocol evolution](https://capnproto.org/language.html#evolving-your-protocol)
+2. [Protocol evolution](https://zap.org/language.html#evolving-your-protocol)
   is automatically supported. If Alice starts using a newer version of the schema,
   Bob will faithfully forward any new fields to Carol,
   even if Bob does not understand the meaning of those fields.
@@ -268,7 +268,7 @@ his existing code already faithfully forwards the new data to Carol.
 
 So far so good.
 To understand the bug, we'll need to dig deeper
-into how capnproto-rust internally represents lists.
+into how zap-rust internally represents lists.
 The `text_list::Reader<'a>` Rust struct returned by
 the `get_tags()` method above is a shallow wrapper
 around a Rust struct called `ListReader`:
@@ -359,7 +359,7 @@ What if we added that value just once, when we first
 constructed the `ListReader`? Then maybe we could eliminate
 some instructions and squeeze out a few more bits of performance.
 
-The original Cap'n Proto implementation included this optimization,
+The original ZAP implementation included this optimization,
 where `ListReader.ptr` would be "munged" by an offset
 corresponding to the struct data size.
 As long as all access to the list
@@ -382,5 +382,5 @@ from beyond the end of the message.
 
 ### Fixing the bug
 
-The bug is fixed by commit [e7ee0ef892c354b0390ed6e38d3ca634308897c5](https://github.com/capnproto/capnproto-rust/commit/e7ee0ef892c354b0390ed6e38d3ca634308897c5),
+The bug is fixed by commit [e7ee0ef892c354b0390ed6e38d3ca634308897c5](https://github.com/zap/zap-rust/commit/e7ee0ef892c354b0390ed6e38d3ca634308897c5),
 which eliminates the bad optimization.

@@ -1,0 +1,38 @@
+[package]
+
+name = "zap-futures"
+version = "0.25.0"
+authors = [ "David Renshaw <drenshaw@gmail.com>" ]
+license = "MIT"
+
+description = "async serialization for ZAP messages"
+repository = "https://github.com/zap-proto/rust"
+documentation = "https://docs.rs/zap-futures/"
+edition = "2021"
+
+keywords = ["async"]
+
+[dependencies]
+zap = { path = "../zap" }
+
+[dependencies.futures-channel]
+version = "0.3.0"
+default-features = false
+features = ["std"]
+
+[dependencies.futures-util]
+version = "0.3.0"
+default-features = false
+features = ["io", "std"]
+
+[dev-dependencies.futures]
+version = "0.3.0"
+default-features = false
+features = ["executor"]
+
+[dev-dependencies]
+zap = { path = "../zap", features = ["quickcheck"] }
+quickcheck = "1"
+
+[lints]
+workspace = true

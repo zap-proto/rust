@@ -19,15 +19,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-capnp::generated_code!(pub mod addressbook_capnp);
+zap::generated_code!(pub mod addressbook_zap);
 
-use capnp::message::{Builder, HeapAllocator, TypedReader};
+use zap::message::{Builder, HeapAllocator, TypedReader};
 use std::sync::mpsc;
 use std::thread;
 
 pub mod addressbook {
-    use crate::addressbook_capnp::{address_book, person};
-    use capnp::message::{Builder, HeapAllocator, TypedBuilder, TypedReader};
+    use crate::addressbook_zap::{address_book, person};
+    use zap::message::{Builder, HeapAllocator, TypedBuilder, TypedReader};
 
     pub fn build_address_book() -> TypedReader<Builder<HeapAllocator>, address_book::Owned> {
         let mut message = TypedBuilder::<address_book::Owned>::new_default();
@@ -81,7 +81,7 @@ pub fn main() {
     let book = addressbook::build_address_book();
 
     let (tx_book, rx_book) = mpsc::channel::<
-        TypedReader<Builder<HeapAllocator>, addressbook_capnp::address_book::Owned>,
+        TypedReader<Builder<HeapAllocator>, addressbook_zap::address_book::Owned>,
     >();
     let (tx_id, rx_id) = mpsc::channel::<u32>();
 

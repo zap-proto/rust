@@ -4,16 +4,16 @@ title: atomic read limiting
 author: dwrensha
 ---
 
-Today I'm releasing capnproto-rust version 0.14.
+Today I'm releasing zap-rust version 0.14.
 The main change is a new
-[`sync_reader`](https://github.com/capnproto/capnproto-rust/blob/c9b12bc765d5cc4e711890b97f065b855516ba71/capnp/Cargo.toml#L40-L43)
+[`sync_reader`](https://github.com/zap/zap-rust/blob/c9b12bc765d5cc4e711890b97f065b855516ba71/zap/Cargo.toml#L40-L43)
 feature that allows messages to be shared between multiple threads.
-With the new feature, you can, for example, wrap a `capnp::message::Reader`
+With the new feature, you can, for example, wrap a `zap::message::Reader`
 with [`lazy_static`](https://crates.io/crates/lazy_static) or
 [`once_cell`](https://crates.io/crates/once_cell) and then read it from anywhere else
 in your program.
 Previously, doing so was not possible because the
-[message traversal limit](https://github.com/capnproto/capnproto-rust/blob/c9b12bc765d5cc4e711890b97f065b855516ba71/capnp/src/message.rs#L38-L55)
+[message traversal limit](https://github.com/zap/zap-rust/blob/c9b12bc765d5cc4e711890b97f065b855516ba71/zap/src/message.rs#L38-L55)
 was tracked through a `Cell`, causing `message::Reader` to not be
 [`Sync`](https://doc.rust-lang.org/std/marker/trait.Sync.html).
 Now, when `sync_reader` is enabled, the traversal limit
@@ -30,7 +30,7 @@ Fortunately, I found that splitting `fetch_sub()` into separate `load()` and `st
 steps recovered the lost time.
 (Such a split may cause the read limiter to undercount reads,
 but we are okay with that level of imprecision.)
-With the [most recent version](https://github.com/capnproto/capnproto-rust/blob/c9b12bc765d5cc4e711890b97f065b855516ba71/capnp/src/private/read_limiter.rs#L54-L71),
+With the [most recent version](https://github.com/zap/zap-rust/blob/c9b12bc765d5cc4e711890b97f065b855516ba71/zap/src/private/read_limiter.rs#L54-L71),
 I am unable to detect any speed difference between the new atomic implementation
 and the old `Cell`-based one.
 
@@ -43,6 +43,6 @@ does not support any atomics on
 or whether it's an implementation hole that could be filled in later.)
 
 [@appaquet](https://github.com/appaquet) deserves credit
-for submitting [the pull request](https://github.com/capnproto/capnproto-rust/pull/201)
+for submitting [the pull request](https://github.com/zap/zap-rust/pull/201)
 with this change and
 for patiently iterating on it with me.

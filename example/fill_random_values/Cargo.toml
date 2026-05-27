@@ -3,7 +3,7 @@
 name = "fill_random_values"
 version = "0.0.0"
 license = "MIT"
-description = "library for generating random capnp data"
+description = "library for generating random zap data"
 edition = "2021"
 
 readme = "README.md"
@@ -13,11 +13,11 @@ keywords = ["encoding", "protocol", "serialization"]
 [dependencies]
 rand = "0.9.0"
 
-[dependencies.capnp]
-path = "../../capnp"
+[dependencies.zap]
+path = "../../zap"
 
-[build-dependencies.capnpc]
-path = "../../capnpc"
+[build-dependencies.zapc]
+path = "../../zapc"
 
 [[bin]]
 name = "fill_addressbook"

@@ -70,7 +70,7 @@ fn run_case(executable: &str, case: &str, scratch_options: &[&str], iteration_co
     }
 }
 
-fn try_main() -> ::capnp::Result<()> {
+fn try_main() -> ::zap::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     assert!(

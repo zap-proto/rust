@@ -1,7 +1,7 @@
 use wasmer::{imports, Value};
 
-pub mod wasm_hello_world_capnp {
-    include!(concat!(env!("OUT_DIR"), "/wasm_hello_world_capnp.rs"));
+pub mod wasm_hello_world_zap {
+    include!(concat!(env!("OUT_DIR"), "/wasm_hello_world_zap.rs"));
 }
 
 static WASM: &'static [u8] =
@@ -17,9 +17,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let memory = instance.exports.get_memory("memory")?;
 
     let mut expected_total: i32 = 0;
-    let mut message = capnp::message::Builder::new_default();
+    let mut message = zap::message::Builder::new_default();
     {
-        let root: wasm_hello_world_capnp::foo::Builder = message.init_root();
+        let root: wasm_hello_world_zap::foo::Builder = message.init_root();
         let mut numbers = root.init_numbers(10);
         let len = numbers.len();
         for ii in 0..len {

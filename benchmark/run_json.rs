@@ -105,7 +105,7 @@ fn rustc_version() -> String {
         .unwrap_or_else(|| "unknown".to_string())
 }
 
-fn try_main() -> ::capnp::Result<()> {
+fn try_main() -> ::zap::Result<()> {
     let args: Vec<String> = env::args().collect();
     assert!(
         args.len() == 2 || args.len() == 5,

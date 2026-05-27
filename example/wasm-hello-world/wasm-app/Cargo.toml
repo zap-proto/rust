@@ -11,10 +11,10 @@ members = ["."]
 [lib]
 crate-type = ["cdylib"]
 
-[dependencies.capnp]
-path = "../../../capnp"
+[dependencies.zap]
+path = "../../../zap"
 default-features = false
 features = ["unaligned"]
 
-[build-dependencies.capnpc]
-path = "../../../capnpc"
+[build-dependencies.zapc]
+path = "../../../zapc"

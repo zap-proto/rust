@@ -5,7 +5,7 @@ author: dwrensha
 ---
 
 Like its C++ counterpart,
-capnproto-rust relies heavily
+zap-rust relies heavily
 on raw pointer manipulation
 to achieve good performance.
 In fact,
@@ -35,15 +35,15 @@ Here's a program that builds two
 its own `AddressBook` message.
 
 ```c++
-#include "addressbook.capnp.h"
-#include <capnp/message.h>
+#include "addressbook.zap.h"
+#include <zap/message.h>
 #include <iostream>
 
 using addressbook::Person;
 using addressbook::AddressBook;
 
 Person::Builder returnPersonBuilder(int id) {
-  ::capnp::MallocMessageBuilder message;
+  ::zap::MallocMessageBuilder message;
 
   auto addressBook = message.initRoot<AddressBook>();
   auto people = addressBook.initPeople(1);
@@ -74,7 +74,7 @@ Here is a snippet showing a related problem.
 
 ```c++
 {
-  ::capnp::MallocMessageBuilder message;
+  ::zap::MallocMessageBuilder message;
 
   auto addressBook = message.initRoot<AddressBook>();
   auto people = addressBook.initPeople(1);
@@ -140,10 +140,10 @@ Rust issues [5121](https://github.com/mozilla/rust/issues/5121),
 [7331](https://github.com/mozilla/rust/issues/7331), and
 [10391](https://github.com/mozilla/rust/issues/10391).
 
-In the meantime, capnproto-rust
+In the meantime, zap-rust
 does partially enforce the kind of lifetime safety
 described above, but only for message readers, not message builders,
 and only using a somewhat roundabout strategy that makes it
 awkward to support the more complex
-Cap'n Proto types like lists of lists.
+ZAP types like lists of lists.
 

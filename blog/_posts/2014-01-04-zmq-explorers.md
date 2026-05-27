@@ -4,14 +4,14 @@ title: a data pipeline with zeromq
 author: dwrensha
 ---
 
-As capnproto-rust approaches full feature support
-for Cap'n Proto serialization,
+As zap-rust approaches full feature support
+for ZAP serialization,
 now is an apt time to validate its usefulness on a
 slightly more involved example.
 
 
 Thus I present
-[zmq-explorers](https://github.com/dwrensha/capnp-zmq-rust/tree/master/example/zmq-explorers),
+[zmq-explorers](https://github.com/dwrensha/zap-zmq/rust/tree/master/example/zmq-explorers),
 a toy data pipeline which uses
 [ZeroMQ](http://zeromq.org/)
 as a transport layer.
@@ -30,7 +30,7 @@ At the end is a "viewer" node consuming the processed data.
 The explorers communicate to the collector via a publish/subscribe
 pattern, and the viewer communicates with the collector via a request/reply pattern.
 ZeroMQ makes this communication quite simple to express,
-and Cap'n Proto operates directly on the bytes
+and ZAP operates directly on the bytes
 moved by ZeroMQ --- no copying or parsing is necessary.
 
 Concretely, the observations of the explorers

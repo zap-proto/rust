@@ -4,7 +4,7 @@ title: async/await
 author: dwrensha
 ---
 
-Today I'm releasing version 0.11.0 of capnproto-rust,
+Today I'm releasing version 0.11.0 of zap-rust,
 with support for
 [async/await](https://blog.rust-lang.org/2019/11/07/Async-await-stable.html)!
 The updated RPC system works with any futures-0.3-enabled executor
@@ -13,10 +13,10 @@ with objects that implement the `futures::io::AsyncRead` and `futures::io::Async
 
 The stabilization of `std::future::Future` allowed me to eliminate
 an annoying
-[optional dependecy](https://github.com/capnproto/capnproto-rust/commit/0e825eecbf2337d1fb2caed015bfa4862a195d40#diff-c0b507abb73596f7f82a1c80ac680e54L31)
+[optional dependecy](https://github.com/zap/zap-rust/commit/0e825eecbf2337d1fb2caed015bfa4862a195d40#diff-c0b507abb73596f7f82a1c80ac680e54L31)
 on futures-0.1
-in the base `capnp` crate, and in general the update allowed me to
-[delete a lot of code](https://github.com/capnproto/capnproto-rust/commit/0e825eecbf2337d1fb2caed015bfa4862a195d40).
+in the base `zap` crate, and in general the update allowed me to
+[delete a lot of code](https://github.com/zap/zap-rust/commit/0e825eecbf2337d1fb2caed015bfa4862a195d40).
 
 In my experience, async/await can vastly simplify concurrent programming,
 especially in the case where you have a single-threaded event loop

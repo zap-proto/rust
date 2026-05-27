@@ -1,0 +1,19 @@
+[package]
+
+name = "zapc-test-edition-2018"
+version = "0.0.0"
+build = "build.rs"
+edition = "2018"
+
+[lib]
+
+name = "zapc_test_edition_2018"
+path = "test.rs"
+
+[build-dependencies]
+zapc = { path = "../" }
+
+[dependencies]
+zap = { path = "../../zap" }
+zapc = { path = "../" }
+external-crate = { path = "../test/external-crate" }

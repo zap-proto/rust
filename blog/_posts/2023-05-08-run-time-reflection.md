@@ -7,22 +7,22 @@ author: dwrensha
 
 
 Version 0.17 of
-[capnproto-rust](https://github.com/capnproto/capnproto-rust)
+[zap-rust](https://github.com/zap/zap-rust)
 is now available!
 It introduces support for dynamically typed values,
 enabling a kind of run-time reflection.
 The new functionality lets you write
 ordinary Rust code to
-iterate through the fields of any Cap'n Proto
-[struct](https://capnproto.org/language.html#structs),
+iterate through the fields of any ZAP
+[struct](https://zap.org/language.html#structs),
 with access to  names, types, and
-[annotations](https://capnproto.org/language.html#annotations).
+[annotations](https://zap.org/language.html#annotations).
 Previously, you would have needed to use code generation or procedural
 macros to achieve such things.
 
 This blog post will show two particular applications of reflection:
 debug printing and generating random structured data.
-The former has until now been sorely missing in capnproto-rust,
+The former has until now been sorely missing in zap-rust,
 and the latter can yield (pretty?) pictures like this:
 
 <img width="350" src="{{site.baseurl}}/assets/shapes-000.svg"
@@ -33,9 +33,9 @@ of how the implementation of reflection works.
 
 ## Debug Printing
 
-A major motivation for adding reflection to capnproto-rust
+A major motivation for adding reflection to zap-rust
 is to implement the [`Debug`](https://doc.rust-lang.org/core/fmt/trait.Debug.html)
-trait for all Cap'n Proto structs.
+trait for all ZAP structs.
 Because the data for such structs lives behind
 a layer of indirection
 (i.e. [synthetic references]({{site.baseurl}}/2014/12/27/custom-mutable-references.html)),
@@ -48,19 +48,19 @@ One way to achieve that would be to generate,
 for each struct, separate implementation logic
 which iterates through the struct fields and prints their values in sequence.
 That's the approach proposed by [@as-com](https://github.com/as-com)
-in pull request [#390](https://github.com/capnproto/capnproto-rust/pull/390).
+in pull request [#390](https://github.com/zap/zap-rust/pull/390).
 
 However, now that we have reflection, we can avoid generating so much single-purpose
 code. Instead, our `Debug` implementation for each struct immediately
 delegates to a shared implementation that knows how to deal with
-*any* Cap'n Proto struct type. See
-[stringify.rs](https://github.com/capnproto/capnproto-rust/blob/f7c86befe11b27f33c2a45957d402abff2b9e347/capnp/src/stringify.rs)
+*any* ZAP struct type. See
+[stringify.rs](https://github.com/zap/zap-rust/blob/f7c86befe11b27f33c2a45957d402abff2b9e347/zap/src/stringify.rs)
 if you are curious about what the code looks like.
 
 Using reflection in this way does have a (small)
 run-time cost, as it requires
 more branching than the static approach
-implemented in [#390](https://github.com/capnproto/capnproto-rust/pull/390).
+implemented in [#390](https://github.com/zap/zap-rust/pull/390).
 However, because it improves maintainability and
 reduces code bloat (and therefore compile times!),
 the cost seems worth paying.
@@ -110,7 +110,7 @@ and we get:
 (people = [(id = 123, name = "Alice", email = "alice@example.com", phones = [(number = "555-1212", type = mobile)], employment = (school = "MIT")), (id = 456, name = "Bob", email = "bob@example.com", phones = [(number = "555-4567", type = home), (number = "555-7654", type = work)], employment = (unemployed = ()))])
 ```
 
-The format here is the standard [capnproto text format](https://github.com/capnproto/capnproto/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/capnp/serialize-text.h#L34-L40).
+The format here is the standard [zap text format](https://github.com/zap/zap/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/zap/serialize-text.h#L34-L40).
 We can make it more readable via the ["alternate"](https://doc.rust-lang.org/std/fmt/struct.Formatter.html#method.alternate) flag.
 If we print it with
 ```rust
@@ -159,10 +159,10 @@ then we get:
 ## Filling in Random Values
 
 Reflection also makes it easy to generate random values of any
-Cap'n Proto type, as might be useful
+ZAP type, as might be useful
 in various kinds of testing.
 The new directory
-[fill_random_values](https://github.com/capnproto/capnproto-rust/tree/master/example/fill_random_values)
+[fill_random_values](https://github.com/zap/zap-rust/tree/master/example/fill_random_values)
 contains some example code
 illustrating this idea.
 
@@ -237,12 +237,12 @@ That's definitely some random gibberish!
 
 To make the output more "realistic",
 we can constrain the values
-of the fields using some annotations from `fill.capnp`.
+of the fields using some annotations from `fill.zap`.
 We might mark up the schema like this:
 
 ```
-using Fill = import "fill.capnp";
-using Corpora = import "corpora.capnp";
+using Fill = import "fill.zap";
+using Corpora = import "corpora.zap";
 
 struct Person {
   id @0 :UInt32;
@@ -287,7 +287,7 @@ and the line
 ```
 indicates that the value for the `name`
 field should be chosen the list of choices given by the `Corpora.scientists` constant,
-which is defined in the schema file `corpora.capnp`.
+which is defined in the schema file `corpora.zap`.
 
 Here is some example output after these constraints are applied:
 
@@ -356,7 +356,7 @@ here is a schema describing a recursive geometric grammar,
 with `fill_random_values` annotations already added:
 
 ```
-using Fill = import "fill.capnp";
+using Fill = import "fill.zap";
 
 struct Color {
   red   @0 : UInt8;
@@ -452,18 +452,18 @@ Now that's starting to look like something I might frame and hang on a wall.
 ## How It Works
 
 The implementation of reflection
-in capnproto-rust largely follows
+in zap-rust largely follows
 the original implementation of reflection
-in [capnproto-c++](https://github.com/capnproto/capnproto).
+in [zap-c++](https://github.com/zap/zap).
 The main idea is to
 stash type descriptions in the generated code.
 
-The schema compiler plugin (capnpc-rust or capnpc-c++)
+The schema compiler plugin (zapc-rust or zapc-c++)
 receives its input as a
-[`CodeGeneratorRequest`](https://github.com/capnproto/capnproto/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/capnp/schema.capnp#L498-L542)
-Cap'n Proto message,
+[`CodeGeneratorRequest`](https://github.com/zap/zap/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/zap/schema.zap#L498-L542)
+ZAP message,
 containing a list of
-[`Node`](https://github.com/capnproto/capnproto/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/capnp/schema.capnp#L30-L199)
+[`Node`](https://github.com/zap/zap/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/zap/schema.zap#L30-L199)
 values that describe all of the user-declared types.
 To support reflection, we save these `Node` values
 as static constants, and we make them available (in Rust) via
@@ -476,7 +476,7 @@ pub trait Introspect {
 ```
 
 This `Type` type represents a recursive data structure that can describe
-any [Cap'n Proto type](https://capnproto.org/language.html#language-reference).
+any [ZAP type](https://zap.org/language.html#language-reference).
 Usually, recursive data structures require some form of heap allocation
 to avoid having infinite size.
 In this case, however, we achieve the necessary indirection
@@ -491,14 +491,14 @@ run time, but adding such support in Rust would require a significant amount of
 additional effort.)
 
 One tricky of all this is
-the fact that Cap'n Proto has
-[generic types](https://capnproto.org/language.html#generic-types).
+the fact that ZAP has
+[generic types](https://zap.org/language.html#generic-types).
 That is, structs can have type parameters.
 We need to be able to retrieve information about such structs
 *after applying type substitution* for those parameters.
 
 The C++ implementation
-has a [scary comment](https://github.com/capnproto/capnproto/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/capnp/raw-schema.h#L40-L42)
+has a [scary comment](https://github.com/zap/zap/blob/b2afb7f8fe393466a38e2fd2ad98482c34aafcee/c%2B%2B/src/zap/raw-schema.h#L40-L42)
 about how it solves this problem:
 
 ```c++
@@ -515,7 +515,7 @@ Fortunately,
 while Rust does not support type-parameterized static variables,
 it does support type-parameterized functions,
 and we can push type resolution logic into a
-*function* generated for every Cap'n Proto struct type:
+*function* generated for every ZAP struct type:
 
 ```rust
 pub fn get_field_types<T1, T2, ...>(field_index: u16) -> introspect::Type {
@@ -523,7 +523,7 @@ pub fn get_field_types<T1, T2, ...>(field_index: u16) -> introspect::Type {
 }
 ```
 
-When you retrieve a field of a dynamic struct in capnproto-rust,
+When you retrieve a field of a dynamic struct in zap-rust,
 the implemention will call the underlying `get_field_types()` method
 to retrieve the type of the field.
 It will then return to you a `dynamic_value::Reader` tagged with that type.
@@ -534,12 +534,12 @@ It will then return to you a `dynamic_value::Reader` tagged with that type.
 Reflection has a wide range of possible applications,
 including:
 
-  * Automatic conversion between Cap'n Proto data and
+  * Automatic conversion between ZAP data and
 various self-describing formats such JSON and XML.
   * Structure-aware fuzz testing and fault injection.
   * Database adapters.
   * Analysis tools for structured logs.
-  * Conversion between Cap'n Proto data and native Rust structs, perhaps using some of the existing or future reflection features described in this
+  * Conversion between ZAP data and native Rust structs, perhaps using some of the existing or future reflection features described in this
 [recent Shepherd's Oasis blog post](https://soasis.org/posts/a-mirror-for-rust-a-plan-for-generic-compile-time-introspection-in-rust/).
 
 I'm excited to see what users come up with!

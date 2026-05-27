@@ -1,0 +1,19 @@
+[package]
+
+name = "zapc-test-edition-2021"
+version = "0.0.0"
+build = "build.rs"
+edition = "2021"
+
+[lib]
+
+name = "zapc_test_edition_2021"
+path = "test.rs"
+
+[build-dependencies]
+zapc = { path = "../" }
+
+[dependencies]
+zap = { path = "../../zap" }
+zapc = { path = "../" }
+external-crate = { path = "../test/external-crate" }

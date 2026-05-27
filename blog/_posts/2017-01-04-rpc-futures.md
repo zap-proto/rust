@@ -1,15 +1,15 @@
 ---
 layout: post
-title: capnp-rpc-rust now uses futures-rs
+title: zap-rpc/rust now uses futures-rs
 author: dwrensha
 ---
 
 The concurrency story of
-[capnp-rpc-rust](https://crates.io/crates/capnp-rpc)
+[zap-rpc/rust](https://crates.io/crates/zap-rpc)
 gets a major update in today's version 0.8 release.
 Previously, the remote procedure call system was built
 on top of [GJ](https://github.com/dwrensha/gj),
-an event loop framework designed specifically for Cap'n Proto,
+an event loop framework designed specifically for ZAP,
 described in some of my [previous]({{site.baseurl}}/2015/05/25/asynchronous-io-with-promises.html)
 [posts]({{site.baseurl}}/2016/01/11/async-rpc.html).
 The new version drops GJ in favor of
@@ -35,16 +35,16 @@ In particular, the typechecker can know at compile time
 whether it is safe to send a future between threads!
 
 The Rust community has a growing ecosystem of libraries based on
-futures-rs, and today's capnp-rpc-rust release
+futures-rs, and today's zap-rpc/rust release
 should work well with all of them.
-For example, a Cap'n Proto method could invoke
+For example, a ZAP method could invoke
 [futures-cpupool](https://crates.io/crates/futures-cpupool)
 to distribute computation-heavy work among a pool of worker threads,
 or it could use one of the emerging asynchronous database drivers
 to make queries on a remote database, or it could do,
 well, anything that can be expressed in terms of the `Future` trait.
 As a quick demonstration, I have implemented a
-simple [example](https://github.com/capnproto/capnproto-rust/tree/capnp-v0.8.17/capnp-rpc/examples/http-requests)
+simple [example](https://github.com/zap/zap-rust/tree/zap-v0.8.17/zap-rpc/examples/http-requests)
 that uses [tokio-curl](https://github.com/tokio-rs/tokio-curl)
 to make asynchronous HTTP requests.
 
