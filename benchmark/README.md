@@ -9,40 +9,67 @@ struct trees with sums), **catrank** (search-result re-ranking), **eval**
 - compression: `none`, `packed`
 - scratch: `reuse` (carsales only), `no-reuse`
 
-## Quick run (≈10 seconds on M-class hardware)
+## Quick start
 
 ```bash
-bash ./benchmark/bench.sh quick
+git clone https://github.com/zap-proto/rust
+cd rust
+bash ./benchmark/bench.sh quick      # ~10 sec sanity
+bash ./benchmark/bench.sh default    # ~15 sec — original Cap'n Proto iters
+bash ./benchmark/bench.sh full       # ~3 min  — 10× iters
 ```
 
-Builds release binaries, runs all 20 (case × mode × compression × scratch)
-combinations with reduced iteration counts, writes a single JSON file
-named `bench-results/$(hostname)-$(timestamp).json`, and prints a summary
-table.
+Each run writes one JSON file `bench-results/$(hostname)-$(timestamp).json`
+plus prints a summary table. Schema documented below.
 
-## Full run (≈minutes)
+## Parallel saturation
+
+`saturate.sh` runs N worker copies of the encoder workload in parallel
+and reports REAL parallel efficiency by comparing against a recorded
+single-worker baseline.
 
 ```bash
-bash ./benchmark/bench.sh default   # original Cap'n Proto iteration counts
-bash ./benchmark/bench.sh full      # 10× iterations — ~10 min on a laptop
+# step 1 — record single-worker baseline
+PRESET=full bash ./benchmark/saturate.sh baseline
+#   single-baseline: 6.003s for 2,000,000 iters = 333,183 ops/s
+
+# step 2 — saturate with N=ncpu workers (default), compute real speedup
+PRESET=full bash ./benchmark/saturate.sh
+#   per-worker p50    : 10.991s (181,963 ops/s under contention)
+#   aggregate ops/s   : 1,745,201
+#   baseline (single) : 6.003s (333,183 ops/s/core)
+#   REAL speedup      : 5.24× (= single × N / wall)
+#   effective cores   : 5.24 of 10
+#   parallel efficiency: 52%
+
+# step 3 — see CPU was actually busy
+tail bench-results/saturate-ra-*/cpu.log
+#   t+04s  total= 406.5%  procs=23  hottest= 43.8%
+#   t+06s  total= 473.4%  procs=23  hottest= 51.1%
+#   t+08s  total= 556.8%  procs=23  hottest= 69.2%
+#   t+10s  total= 529.1%  procs=23  hottest= 53.4%
 ```
 
-Override individual iteration counts:
+What to look for:
 
-```bash
-CARSALES_ITERS=50000 CATRANK_ITERS=5000 EVAL_ITERS=1000000 \
-  ./benchmark/bench.sh default
-```
+- **Real speedup < N**: normal. On M-class Macs you'll see 4-6× speedup
+  on 10 cores due to macOS QoS scheduling (subprocesses get throttled
+  to efficiency cores) and system allocator contention.
+- **CPU sampler total ≈ 100 × speedup**: the math should match. If `ps`
+  says 500% and speedup is 5×, that's coherent.
 
-## Output format
+Skip `pipe` mode for saturation: pipe mode forks a child per RPC, so
+under N workers you spawn N × iters_count children, and the bottleneck
+is the OS fork rate, not the encoder. The encoder workload is
+`eval bytes none` — pure marshal + unmarshal, no process boundaries.
 
-Each run produces one JSON file (`bench-results/${hostname}-${stamp}.json`):
+## Output schema
 
 ```json
 {
   "schema_version": 1,
-  "host": {"hostname":"...","os":"...","arch":"..."},
-  "toolchain": {"rustc":"..."},
+  "host": {"hostname":"...","os":"linux","arch":"x86_64"},
+  "toolchain": {"rustc":"rustc 1.95.0 ..."},
   "iters": {"carsales":10000,"catrank":1000,"eval":200000},
   "runs": [
     {"case":"carsales","mode":"object","compression":"none",
@@ -57,23 +84,23 @@ Twenty runs per file (5 carsales × 2 scratch + 5 catrank + 5 eval).
 
 ## Contributing results across hardware
 
-The intent of `bench.sh` is to make multi-machine comparisons easy:
+The intent is multi-machine comparison:
 
 1. Pull this repo on each machine
-2. `./benchmark/bench.sh default`
-3. Open a PR adding the resulting `bench-results/*.json` to this directory
+2. `bash ./benchmark/bench.sh default`
+3. Open a PR adding the resulting `bench-results/*.json` to this
+   directory
 
-The schema is stable; downstream tools (and the documentation site at
-[zap-proto.dev/docs/benchmarks](https://zap-proto.dev/docs/benchmarks))
-can aggregate any future submission by reading the `runs` array.
+The schema is stable; downstream tools (and [zap-proto.dev/docs/benchmarks](https://zap-proto.dev/docs/benchmarks))
+aggregate any future submission by reading the `runs` array.
 
 ## What each case stresses
 
-**carsales** — large, deeply-nested message tree. Tests encoding bandwidth
-and allocation cost. Stress allocators.
+**carsales** — large, deeply-nested message tree. Tests encoding
+bandwidth and allocation cost. Stress allocators.
 
-**catrank** — moderate-size strings + ranking arithmetic on read. Tests
-zero-copy access vs. copy-decode.
+**catrank** — moderate-size strings + ranking arithmetic on read.
+Tests zero-copy access vs. copy-decode.
 
 **eval** — small, recursive structure. Tests per-message overhead and
 dispatch.
