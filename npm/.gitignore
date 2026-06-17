@@ -1,0 +1,3 @@
+bin/zapc
+bin/*.tar.gz
+node_modules/

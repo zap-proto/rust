@@ -1,0 +1,65 @@
+name: release
+
+on:
+  push:
+    tags: ['zapc-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-14,         target: aarch64-apple-darwin }
+          - { os: macos-14,         target: x86_64-apple-darwin }        # native cross-compile, no QEMU/macos-13
+          - { os: ubuntu-latest,    target: x86_64-unknown-linux-musl }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-musl }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: musl tools
+        if: contains(matrix.target, 'musl')
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - run: cargo build --release --target ${{ matrix.target }} -p zapc --bin zapc
+      - name: package
+        run: |
+          tar -C target/${{ matrix.target }}/release -czf zapc-${{ matrix.target }}.tar.gz zapc
+          shasum -a 256 zapc-${{ matrix.target }}.tar.gz > zapc-${{ matrix.target }}.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zapc-${{ matrix.target }}
+          path: zapc-${{ matrix.target }}.tar.gz*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { merge-multiple: true, path: dist }
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+
+  npm:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, registry-url: 'https://registry.npmjs.org' }
+      - name: publish @zap-proto/zapc (downloads the canonical zapc binary)
+        working-directory: npm
+        run: |
+          npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#zapc-v}"
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
