@@ -8,9 +8,9 @@
 //
 // To regenerate from .zap schemas (developer task):
 //   1. install the zapc binary: `cargo install --path ../zapc`
-//   2. compile via: `capnp compile -orust *.zap`
-//      (the zapc binary is the codegen plugin; capnp tool from upstream
-//       is only used as a parser frontend, not linked at build time)
+//   2. compile via: `zap compile -orust *.zap`
+//      (the zapc binary is the codegen plugin invoked by the zap CLI's
+//       schema parser frontend; neither is linked at build time)
 
 use std::{env, fs, path::Path};
 

@@ -1,6 +1,6 @@
 # addressbook_send example
 
-A quick example that demonstrates how to send (parsed) Cap'N Proto messages
+A quick example that demonstrates how to send (parsed) ZAP messages
 across thread boundaries. Because the standard `Builder` and `Reader`
 interfaces require lifetimes (meaning that they're not `'static`) they can't
 be sent across thread boundaries.
