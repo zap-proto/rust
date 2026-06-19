@@ -294,10 +294,10 @@ struct Bootstrap {
   # an initial endowment or part of a Powerbox interaction. Therefore, an app can form arbitrary
   # connections without ever using `Bootstrap`.
   #
-  # Of course, in the real world, DNS is not Cap'n-Proto-based, and we don't want ZAP to
+  # Of course, in the real world, DNS is not ZAP-based, and we don't want ZAP to
   # require a whole new internet infrastructure to be useful. Therefore, we offer bootstrap
   # interfaces as a way to get up and running without a level 3 introduction. Thus, bootstrap
-  # interfaces are used to "bootstrap" from other, non-Cap'n-Proto-based means of service discovery,
+  # interfaces are used to "bootstrap" from other, non-ZAP-based means of service discovery,
   # such as legacy DNS.
   #
   # Note that a vat need not provide a bootstrap interface, and in fact many vats (especially those
