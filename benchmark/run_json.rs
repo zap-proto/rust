@@ -71,7 +71,11 @@ fn run_case(
     // object mode only varies by scratch (no bytes/pipe x compression cross)
     for scratch in scratch_options {
         let secs = run_one(executable, case, "object", scratch, "none", iters);
-        if !*first_in_runs { println!(","); } else { *first_in_runs = false; }
+        if !*first_in_runs {
+            println!(",");
+        } else {
+            *first_in_runs = false;
+        }
         emit_run(case, "object", scratch, "none", iters, secs);
     }
 
@@ -79,7 +83,11 @@ fn run_case(
         for compression in &["none", "packed"] {
             for scratch in scratch_options {
                 let secs = run_one(executable, case, mode, scratch, compression, iters);
-                if !*first_in_runs { println!(","); } else { *first_in_runs = false; }
+                if !*first_in_runs {
+                    println!(",");
+                } else {
+                    *first_in_runs = false;
+                }
                 emit_run(case, mode, scratch, compression, iters, secs);
             }
         }
@@ -144,8 +152,20 @@ fn try_main() -> ::zap::Result<()> {
     println!("  \"runs\": [");
 
     let mut first = true;
-    run_case(executable, "carsales", &["reuse", "no-reuse"], carsales_iters, &mut first);
-    run_case(executable, "catrank", &["no-reuse"], catrank_iters, &mut first);
+    run_case(
+        executable,
+        "carsales",
+        &["reuse", "no-reuse"],
+        carsales_iters,
+        &mut first,
+    );
+    run_case(
+        executable,
+        "catrank",
+        &["no-reuse"],
+        catrank_iters,
+        &mut first,
+    );
     run_case(executable, "eval", &["no-reuse"], eval_iters, &mut first);
 
     println!();

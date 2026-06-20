@@ -20,8 +20,8 @@
 // THE SOFTWARE.
 
 use crate::hello_world_zap::hello_world;
-use zap_rpc::{rpc_twoparty_zap, twoparty, RpcSystem};
 use std::net::ToSocketAddrs;
+use zap_rpc::{rpc_twoparty_zap, twoparty, RpcSystem};
 
 use futures::AsyncReadExt;
 

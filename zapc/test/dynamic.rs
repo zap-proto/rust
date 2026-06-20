@@ -1,5 +1,5 @@
-use crate::test_zap::{test_all_types, test_defaults};
 use crate::test_util::{self};
+use crate::test_zap::{test_all_types, test_defaults};
 use zap::message::{self};
 use zap::{dynamic_list, dynamic_struct, dynamic_value};
 
@@ -79,10 +79,7 @@ fn test_unions() {
         let u: dynamic_struct::Reader<'_> = dynamic.get_named("union1").unwrap().downcast();
         let w = u.which().unwrap().unwrap();
         assert_eq!("u1f1sp", w.get_proto().get_name().unwrap());
-        assert_eq!(
-            "foo",
-            u.get(w).unwrap().downcast::<zap::text::Reader<'_>>()
-        );
+        assert_eq!("foo", u.get(w).unwrap().downcast::<zap::text::Reader<'_>>());
     }
     {
         let u: dynamic_struct::Reader<'_> = dynamic.get_named("union2").unwrap().downcast();
@@ -187,10 +184,7 @@ fn test_generic_annotation() -> ::zap::Result<()> {
     assert_eq!(1, annotations.len());
     let ann = annotations.get(0);
     assert_eq!(ann.get_id(), test_generics::ann::ID);
-    assert_eq!(
-        "foo",
-        ann.get_value()?.downcast::<zap::text::Reader<'_>>()
-    );
+    assert_eq!("foo", ann.get_value()?.downcast::<zap::text::Reader<'_>>());
     Ok(())
 }
 

@@ -20,8 +20,8 @@
 // THE SOFTWARE.
 use std::cell::RefCell;
 
-use zap_rpc::{rpc_twoparty_zap, twoparty, RpcSystem};
 use futures::channel::oneshot;
+use zap_rpc::{rpc_twoparty_zap, twoparty, RpcSystem};
 
 use crate::foo_zap::foo;
 

@@ -158,9 +158,8 @@ pub mod node {
         #[inline]
         pub fn get_parameters(
             self,
-        ) -> crate::Result<
-            crate::struct_list::Reader<'a, crate::schema_zap::node::parameter::Owned>,
-        > {
+        ) -> crate::Result<crate::struct_list::Reader<'a, crate::schema_zap::node::parameter::Owned>>
+        {
             crate::traits::FromPointerReader::get_from_pointer(
                 &self.reader.get_pointer_field(5),
                 ::core::option::Option::None,
@@ -348,8 +347,7 @@ pub mod node {
         pub fn init_nested_nodes(
             self,
             size: u32,
-        ) -> crate::struct_list::Builder<'a, crate::schema_zap::node::nested_node::Owned>
-        {
+        ) -> crate::struct_list::Builder<'a, crate::schema_zap::node::nested_node::Owned> {
             crate::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(1), size)
         }
         #[inline]
@@ -445,9 +443,8 @@ pub mod node {
         #[inline]
         pub fn get_parameters(
             self,
-        ) -> crate::Result<
-            crate::struct_list::Builder<'a, crate::schema_zap::node::parameter::Owned>,
-        > {
+        ) -> crate::Result<crate::struct_list::Builder<'a, crate::schema_zap::node::parameter::Owned>>
+        {
             crate::traits::FromPointerBuilder::get_from_pointer(
                 self.builder.get_pointer_field(5),
                 ::core::option::Option::None,
@@ -1542,10 +1539,7 @@ pub mod node {
             pub fn get_members(
                 self,
             ) -> crate::Result<
-                crate::struct_list::Reader<
-                    'a,
-                    crate::schema_zap::node::source_info::member::Owned,
-                >,
+                crate::struct_list::Reader<'a, crate::schema_zap::node::source_info::member::Owned>,
             > {
                 crate::traits::FromPointerReader::get_from_pointer(
                     &self.reader.get_pointer_field(1),
@@ -1711,10 +1705,8 @@ pub mod node {
             pub fn init_members(
                 self,
                 size: u32,
-            ) -> crate::struct_list::Builder<
-                'a,
-                crate::schema_zap::node::source_info::member::Owned,
-            > {
+            ) -> crate::struct_list::Builder<'a, crate::schema_zap::node::source_info::member::Owned>
+            {
                 crate::traits::FromPointerBuilder::init_pointer(
                     self.builder.get_pointer_field(1),
                     size,
@@ -2880,8 +2872,7 @@ pub mod node {
             pub fn init_enumerants(
                 self,
                 size: u32,
-            ) -> crate::struct_list::Builder<'a, crate::schema_zap::enumerant::Owned>
-            {
+            ) -> crate::struct_list::Builder<'a, crate::schema_zap::enumerant::Owned> {
                 crate::traits::FromPointerBuilder::init_pointer(
                     self.builder.get_pointer_field(3),
                     size,
@@ -3224,9 +3215,8 @@ pub mod node {
             #[inline]
             pub fn get_superclasses(
                 self,
-            ) -> crate::Result<
-                crate::struct_list::Builder<'a, crate::schema_zap::superclass::Owned>,
-            > {
+            ) -> crate::Result<crate::struct_list::Builder<'a, crate::schema_zap::superclass::Owned>>
+            {
                 crate::traits::FromPointerBuilder::get_from_pointer(
                     self.builder.get_pointer_field(4),
                     ::core::option::Option::None,
@@ -3247,8 +3237,7 @@ pub mod node {
             pub fn init_superclasses(
                 self,
                 size: u32,
-            ) -> crate::struct_list::Builder<'a, crate::schema_zap::superclass::Owned>
-            {
+            ) -> crate::struct_list::Builder<'a, crate::schema_zap::superclass::Owned> {
                 crate::traits::FromPointerBuilder::init_pointer(
                     self.builder.get_pointer_field(4),
                     size,
@@ -5013,9 +5002,7 @@ pub mod field {
                 !self.reader.get_pointer_field(2).is_null()
             }
             #[inline]
-            pub fn get_default_value(
-                self,
-            ) -> crate::Result<crate::schema_zap::value::Reader<'a>> {
+            pub fn get_default_value(self) -> crate::Result<crate::schema_zap::value::Reader<'a>> {
                 crate::traits::FromPointerReader::get_from_pointer(
                     &self.reader.get_pointer_field(3),
                     ::core::option::Option::None,
@@ -5155,9 +5142,7 @@ pub mod field {
                 !self.builder.is_pointer_field_null(2)
             }
             #[inline]
-            pub fn get_default_value(
-                self,
-            ) -> crate::Result<crate::schema_zap::value::Builder<'a>> {
+            pub fn get_default_value(self) -> crate::Result<crate::schema_zap::value::Builder<'a>> {
                 crate::traits::FromPointerBuilder::get_from_pointer(
                     self.builder.get_pointer_field(3),
                     ::core::option::Option::None,
@@ -6613,8 +6598,7 @@ pub mod superclass {
             match index {
                 0 => <u64 as crate::introspect::Introspect>::introspect(),
                 1 => {
-                    <crate::schema_zap::brand::Owned as crate::introspect::Introspect>::introspect(
-                    )
+                    <crate::schema_zap::brand::Owned as crate::introspect::Introspect>::introspect()
                 }
                 _ => crate::introspect::panic_invalid_field_index(index),
             }
@@ -6802,9 +6786,8 @@ pub mod method {
         #[inline]
         pub fn get_implicit_parameters(
             self,
-        ) -> crate::Result<
-            crate::struct_list::Reader<'a, crate::schema_zap::node::parameter::Owned>,
-        > {
+        ) -> crate::Result<crate::struct_list::Reader<'a, crate::schema_zap::node::parameter::Owned>>
+        {
             crate::traits::FromPointerReader::get_from_pointer(
                 &self.reader.get_pointer_field(4),
                 ::core::option::Option::None,
@@ -7034,9 +7017,8 @@ pub mod method {
         #[inline]
         pub fn get_implicit_parameters(
             self,
-        ) -> crate::Result<
-            crate::struct_list::Builder<'a, crate::schema_zap::node::parameter::Owned>,
-        > {
+        ) -> crate::Result<crate::struct_list::Builder<'a, crate::schema_zap::node::parameter::Owned>>
+        {
             crate::traits::FromPointerBuilder::get_from_pointer(
                 self.builder.get_pointer_field(4),
                 ::core::option::Option::None,
@@ -8176,9 +8158,7 @@ pub mod type_ {
                 self.builder.as_reader().total_size()
             }
             #[inline]
-            pub fn get_element_type(
-                self,
-            ) -> crate::Result<crate::schema_zap::type_::Builder<'a>> {
+            pub fn get_element_type(self) -> crate::Result<crate::schema_zap::type_::Builder<'a>> {
                 crate::traits::FromPointerBuilder::get_from_pointer(
                     self.builder.get_pointer_field(0),
                     ::core::option::Option::None,
@@ -11301,9 +11281,7 @@ pub mod brand {
             Inherit(()),
         }
         pub type WhichReader<'a> = Which<
-            crate::Result<
-                crate::struct_list::Reader<'a, crate::schema_zap::brand::binding::Owned>,
-            >,
+            crate::Result<crate::struct_list::Reader<'a, crate::schema_zap::brand::binding::Owned>>,
         >;
         pub type WhichBuilder<'a> = Which<
             crate::Result<
@@ -12884,12 +12862,10 @@ pub mod annotation {
             match index {
                 0 => <u64 as crate::introspect::Introspect>::introspect(),
                 1 => {
-                    <crate::schema_zap::value::Owned as crate::introspect::Introspect>::introspect(
-                    )
+                    <crate::schema_zap::value::Owned as crate::introspect::Introspect>::introspect()
                 }
                 2 => {
-                    <crate::schema_zap::brand::Owned as crate::introspect::Introspect>::introspect(
-                    )
+                    <crate::schema_zap::brand::Owned as crate::introspect::Introspect>::introspect()
                 }
                 _ => crate::introspect::panic_invalid_field_index(index),
             }
@@ -13471,8 +13447,7 @@ pub mod code_generator_request {
         #[inline]
         pub fn get_nodes(
             self,
-        ) -> crate::Result<crate::struct_list::Reader<'a, crate::schema_zap::node::Owned>>
-        {
+        ) -> crate::Result<crate::struct_list::Reader<'a, crate::schema_zap::node::Owned>> {
             crate::traits::FromPointerReader::get_from_pointer(
                 &self.reader.get_pointer_field(0),
                 ::core::option::Option::None,
@@ -13501,9 +13476,7 @@ pub mod code_generator_request {
             !self.reader.get_pointer_field(1).is_null()
         }
         #[inline]
-        pub fn get_zap_version(
-            self,
-        ) -> crate::Result<crate::schema_zap::zap_version::Reader<'a>> {
+        pub fn get_zap_version(self) -> crate::Result<crate::schema_zap::zap_version::Reader<'a>> {
             crate::traits::FromPointerReader::get_from_pointer(
                 &self.reader.get_pointer_field(2),
                 ::core::option::Option::None,
@@ -13688,9 +13661,7 @@ pub mod code_generator_request {
             !self.builder.is_pointer_field_null(1)
         }
         #[inline]
-        pub fn get_zap_version(
-            self,
-        ) -> crate::Result<crate::schema_zap::zap_version::Builder<'a>> {
+        pub fn get_zap_version(self) -> crate::Result<crate::schema_zap::zap_version::Builder<'a>> {
             crate::traits::FromPointerBuilder::get_from_pointer(
                 self.builder.get_pointer_field(2),
                 ::core::option::Option::None,
@@ -13741,8 +13712,7 @@ pub mod code_generator_request {
         pub fn init_source_info(
             self,
             size: u32,
-        ) -> crate::struct_list::Builder<'a, crate::schema_zap::node::source_info::Owned>
-        {
+        ) -> crate::struct_list::Builder<'a, crate::schema_zap::node::source_info::Owned> {
             crate::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(3), size)
         }
         #[inline]

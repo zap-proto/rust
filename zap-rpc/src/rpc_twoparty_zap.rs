@@ -243,10 +243,7 @@ pub mod vat_id {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -339,10 +336,7 @@ pub mod vat_id {
         ];
         pub fn get_field_types(index: u16) -> ::zap::introspect::Type {
             match index {
-                0 => {
-                    <crate::rpc_twoparty_zap::Side as ::zap::introspect::Introspect>::introspect(
-                    )
-                }
+                0 => <crate::rpc_twoparty_zap::Side as ::zap::introspect::Introspect>::introspect(),
                 _ => ::zap::introspect::panic_invalid_field_index(index),
             }
         }
@@ -524,10 +518,7 @@ pub mod provision_id {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -796,10 +787,7 @@ pub mod recipient_id {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -1041,10 +1029,7 @@ pub mod third_party_cap_id {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -1299,10 +1284,7 @@ pub mod join_key_part {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -1636,10 +1618,7 @@ pub mod join_result {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }

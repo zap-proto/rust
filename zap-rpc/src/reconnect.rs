@@ -2,9 +2,9 @@ use std::cell::RefCell;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
+use futures::TryFutureExt;
 use zap::capability::{FromClientHook, Promise};
 use zap::private::capability::{ClientHook, RequestHook};
-use futures::TryFutureExt;
 
 /// Trait implemented by the reconnecting client to set new connection out-of-band.
 ///
@@ -112,8 +112,7 @@ where
         let c = self.clone();
         let generation = self.inner.borrow().generation;
         Promise::from_future(promise.map_err(move |err| {
-            if err.kind == zap::ErrorKind::Disconnected
-                && generation == c.inner.borrow().generation
+            if err.kind == zap::ErrorKind::Disconnected && generation == c.inner.borrow().generation
             {
                 let mut inner = c.inner.borrow_mut();
                 inner.generation = generation + 1;

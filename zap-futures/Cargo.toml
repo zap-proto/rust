@@ -32,7 +32,7 @@ features = ["executor"]
 
 [dev-dependencies]
 zap = { path = "../zap", features = ["quickcheck"] }
-quickcheck = "1"
+quickcheck = "=1.0.3"
 
 [lints]
 workspace = true

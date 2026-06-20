@@ -268,8 +268,7 @@ where
     ));
 
     let mut rpc_system = RpcSystem::new(network, None);
-    let client: test_zap::bootstrap::Client =
-        rpc_system.bootstrap(rpc_twoparty_zap::Side::Server);
+    let client: test_zap::bootstrap::Client = rpc_system.bootstrap(rpc_twoparty_zap::Side::Server);
 
     let disconnector = rpc_system.get_disconnector();
     spawn(&mut spawner, rpc_system);

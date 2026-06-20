@@ -6,9 +6,8 @@ use zap::message;
 pub fn scratch_space_heap_allocator() {
     let mut buffer = zap::Word::allocate_zeroed_vec(200);
     {
-        let allocator = message::ScratchSpaceHeapAllocator::new(zap::Word::words_to_bytes_mut(
-            &mut buffer[..],
-        ));
+        let allocator =
+            message::ScratchSpaceHeapAllocator::new(zap::Word::words_to_bytes_mut(&mut buffer[..]));
         let mut msg = message::Builder::new(allocator);
         msg.set_root("hello world!").unwrap();
 

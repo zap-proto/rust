@@ -2,17 +2,17 @@ use std::cell::RefCell;
 use std::future::Future;
 use std::rc::Rc;
 
-use zap::capability::{Promise, Response};
-use zap::Error;
-use zap_rpc::{
-    auto_reconnect, lazy_auto_reconnect, new_client, new_future_client, rpc_twoparty_zap,
-    twoparty, RpcSystem,
-};
 use futures::channel::oneshot;
 use futures::executor::LocalPool;
 use futures::future::Shared;
 use futures::task::LocalSpawnExt;
 use futures::FutureExt;
+use zap::capability::{Promise, Response};
+use zap::Error;
+use zap_rpc::{
+    auto_reconnect, lazy_auto_reconnect, new_client, new_future_client, rpc_twoparty_zap, twoparty,
+    RpcSystem,
+};
 
 use crate::spawn;
 use crate::test_zap::{self, test_interface};

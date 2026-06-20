@@ -123,10 +123,7 @@ impl ClientHook for Client {
         _method_id: u16,
         size_hint: Option<::zap::MessageSize>,
     ) -> ::zap::capability::Request<any_pointer::Owned, any_pointer::Owned> {
-        ::zap::capability::Request::new(Box::new(Request::new(
-            self.inner.error.clone(),
-            size_hint,
-        )))
+        ::zap::capability::Request::new(Box::new(Request::new(self.inner.error.clone(), size_hint)))
     }
 
     fn call(

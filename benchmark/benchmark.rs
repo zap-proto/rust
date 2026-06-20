@@ -93,11 +93,7 @@ impl Serialize for NoCompression {
         serialize::read_message(read, options)
     }
 
-    fn write_message<W, A>(
-        &self,
-        write: &mut W,
-        message: &message::Builder<A>,
-    ) -> ::zap::Result<()>
+    fn write_message<W, A>(&self, write: &mut W, message: &message::Builder<A>) -> ::zap::Result<()>
     where
         W: io::Write,
         A: message::Allocator,
@@ -120,11 +116,7 @@ impl Serialize for Packed {
         serialize_packed::read_message(read, options)
     }
 
-    fn write_message<W, A>(
-        &self,
-        write: &mut W,
-        message: &message::Builder<A>,
-    ) -> ::zap::Result<()>
+    fn write_message<W, A>(&self, write: &mut W, message: &message::Builder<A>) -> ::zap::Result<()>
     where
         W: io::Write,
         A: message::Allocator,
@@ -282,8 +274,8 @@ where
 
         {
             let response = message_res.init_root();
-            let message_reader = compression
-                .read_message(&mut in_buffered, zap::message::DEFAULT_READER_OPTIONS)?;
+            let message_reader =
+                compression.read_message(&mut in_buffered, zap::message::DEFAULT_READER_OPTIONS)?;
             let request_reader = message_reader.get_root()?;
             testcase.handle_request(request_reader, response)?;
         }
@@ -294,12 +286,7 @@ where
     Ok(())
 }
 
-fn sync_client<C, S, T>(
-    testcase: T,
-    mut reuse: S,
-    compression: C,
-    iters: u64,
-) -> ::zap::Result<()>
+fn sync_client<C, S, T>(testcase: T, mut reuse: S, compression: C, iters: u64) -> ::zap::Result<()>
 where
     C: Serialize,
     S: for<'a> Scratch<'a>,
@@ -428,9 +415,7 @@ where
         "carsales" => do_testcase(carsales::CarSales, mode, scratch, compression, iters),
         "catrank" => do_testcase(catrank::CatRank, mode, scratch, compression, iters),
         "eval" => do_testcase(eval::Eval, mode, scratch, compression, iters),
-        s => Err(::zap::Error::failed(format!(
-            "unrecognized test case: {s}"
-        ))),
+        s => Err(::zap::Error::failed(format!("unrecognized test case: {s}"))),
     }
 }
 

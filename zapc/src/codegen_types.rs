@@ -20,9 +20,9 @@
 // THE SOFTWARE.
 
 use crate::codegen::{fmt, GeneratorContext};
+use std::collections::hash_map::HashMap;
 use zap::schema_zap::{brand, node, type_};
 use zap::Error;
-use std::collections::hash_map::HashMap;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum Leaf {

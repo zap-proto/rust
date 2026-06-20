@@ -58,15 +58,15 @@
 //!
 //! For a more complete example, see <https://github.com/zap-proto/rust/tree/master/zap-rpc/examples/calculator>
 
-use zap::capability::Promise;
-use zap::private::capability::ClientHook;
-use zap::Error;
 use futures::channel::oneshot;
 use futures::{Future, FutureExt, TryFutureExt};
 use std::cell::RefCell;
 use std::pin::Pin;
 use std::rc::{Rc, Weak};
 use std::task::{Context, Poll};
+use zap::capability::Promise;
+use zap::private::capability::ClientHook;
+use zap::Error;
 
 pub use crate::rpc::Disconnector;
 use crate::task_set::TaskSet;
@@ -447,9 +447,9 @@ where
     where
         C: zap::capability::FromClientHook,
     {
-        let resolved: C = zap::capability::get_resolved_cap(
-            zap::capability::FromClientHook::new(client.as_client_hook().add_ref()),
-        )
+        let resolved: C = zap::capability::get_resolved_cap(zap::capability::FromClientHook::new(
+            client.as_client_hook().add_ref(),
+        ))
         .await;
         let hook = resolved.into_client_hook();
         let ptr = hook.get_ptr();

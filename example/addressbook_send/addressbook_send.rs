@@ -21,9 +21,9 @@
 
 zap::generated_code!(pub mod addressbook_zap);
 
-use zap::message::{Builder, HeapAllocator, TypedReader};
 use std::sync::mpsc;
 use std::thread;
+use zap::message::{Builder, HeapAllocator, TypedReader};
 
 pub mod addressbook {
     use crate::addressbook_zap::{address_book, person};

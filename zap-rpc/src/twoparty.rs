@@ -22,10 +22,10 @@
 //! An implementation of [`VatNetwork`](crate::VatNetwork) for the common case
 //! of a client-server connection.
 
-use zap::capability::Promise;
-use zap::message::ReaderOptions;
 use futures::channel::oneshot;
 use futures::{AsyncRead, AsyncWrite, FutureExt, TryFutureExt};
+use zap::capability::Promise;
+use zap::message::ReaderOptions;
 
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
@@ -128,9 +128,7 @@ where
 {
     fn new(
         input_stream: T,
-        sender: ::zap_futures::Sender<
-            Rc<::zap::message::Builder<::zap::message::HeapAllocator>>,
-        >,
+        sender: ::zap_futures::Sender<Rc<::zap::message::Builder<::zap::message::HeapAllocator>>>,
         side: crate::rpc_twoparty_zap::Side,
         receive_options: ReaderOptions,
         on_disconnect_fulfiller: oneshot::Sender<()>,
@@ -181,8 +179,7 @@ where
                 let receive_options = inner.receive_options;
                 Promise::from_future(async move {
                     let maybe_message =
-                        ::zap_futures::serialize::try_read_message(&mut s, receive_options)
-                            .await?;
+                        ::zap_futures::serialize::try_read_message(&mut s, receive_options).await?;
                     *return_it_here.borrow_mut() = Some(s);
                     Ok(maybe_message.map(|message| {
                         Box::new(IncomingMessage::new(message)) as Box<dyn crate::IncomingMessage>

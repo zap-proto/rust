@@ -1,6 +1,6 @@
-use zap_rpc::{auto_reconnect, new_future_client, rpc_twoparty_zap, twoparty, RpcSystem};
 use futures::AsyncReadExt as _;
 use tokio::net::ToSocketAddrs;
+use zap_rpc::{auto_reconnect, new_future_client, rpc_twoparty_zap, twoparty, RpcSystem};
 
 use crate::foo_zap::foo;
 
