@@ -19,8 +19,10 @@ runs:
       id: cache
       uses: actions/cache@v4
       with:
-        path: /usr/local/bin/zap
-        key: zap-frontend-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ref }}
+        path: |
+          /usr/local/bin/zap
+          /usr/local/include/zap
+        key: zap-frontend-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ref }}-v2
 
     - name: Build deps
       if: steps.cache.outputs.cache-hit != 'true'
@@ -57,6 +59,11 @@ runs:
         zapbin="$(find "$src/c++/build" -name zap -type f -perm -u+x | head -1)"
         test -n "$zapbin" || { echo "zap binary not found in cpp-core build tree" >&2; exit 1; }
         sudo install -m755 "$zapbin" /usr/local/bin/zap
+        # `zap` resolves standard imports (`/zap/stream.zap`, `/zap/c++.zap`, ...)
+        # from its compiled-in ZAP_INCLUDE_DIR (=/usr/local/include). A schema using
+        # `streaming` imports /zap/stream.zap, so the std schemas must ship too.
+        sudo mkdir -p /usr/local/include/zap
+        sudo cp "$src"/c++/src/zap/*.zap /usr/local/include/zap/
 
     - name: Verify
       shell: bash
