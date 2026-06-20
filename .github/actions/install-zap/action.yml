@@ -10,7 +10,7 @@ inputs:
   ref:
     description: zap-proto/cpp-core git ref to build (branch, tag, or SHA).
     required: false
-    default: zap-rebrand
+    default: main
 
 runs:
   using: composite
