@@ -1,1 +1,1 @@
-../rust.capnp
+../rust.zap
