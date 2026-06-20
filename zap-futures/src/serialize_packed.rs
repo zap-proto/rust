@@ -25,9 +25,9 @@
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
+use futures_util::{AsyncRead, AsyncWrite};
 use zap::serialize::OwnedSegments;
 use zap::{message, Result};
-use futures_util::{AsyncRead, AsyncWrite};
 
 use crate::serialize::AsOutputSegments;
 
@@ -537,9 +537,9 @@ where
 pub mod test {
     use crate::serialize::test::{BlockingRead, BlockingWrite};
     use crate::serialize_packed::{try_read_message, PackedRead, PackedWrite};
-    use zap::message::ReaderSegments;
     use futures::{AsyncReadExt, AsyncWriteExt};
     use quickcheck::{quickcheck, TestResult};
+    use zap::message::ReaderSegments;
 
     pub fn check_unpacks_to(blocking_period: usize, packed: &[u8], unpacked: &[u8]) {
         let mut packed_read = PackedRead::new(crate::serialize::test::BlockingRead::new(

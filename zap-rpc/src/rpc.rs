@@ -361,9 +361,7 @@ fn from_error(error: &Error, mut builder: exception::Builder) {
         ::zap::ErrorKind::Overloaded => exception::Type::Overloaded,
         ::zap::ErrorKind::Disconnected => exception::Type::Disconnected,
         ::zap::ErrorKind::Unimplemented => exception::Type::Unimplemented,
-        ::zap::ErrorKind::SettingDynamicCapabilitiesIsUnsupported => {
-            exception::Type::Unimplemented
-        }
+        ::zap::ErrorKind::SettingDynamicCapabilitiesIsUnsupported => exception::Type::Unimplemented,
         _ => exception::Type::Failed,
     };
     builder.set_type(typ);
@@ -387,9 +385,7 @@ fn remote_exception_to_error(exception: exception::Reader) -> Error {
     let (kind, reason) = match (exception.get_type(), exception.get_reason()) {
         (Ok(exception::Type::Failed), Ok(reason)) => (::zap::ErrorKind::Failed, reason),
         (Ok(exception::Type::Overloaded), Ok(reason)) => (::zap::ErrorKind::Overloaded, reason),
-        (Ok(exception::Type::Disconnected), Ok(reason)) => {
-            (::zap::ErrorKind::Disconnected, reason)
-        }
+        (Ok(exception::Type::Disconnected), Ok(reason)) => (::zap::ErrorKind::Disconnected, reason),
         (Ok(exception::Type::Unimplemented), Ok(reason)) => {
             (::zap::ErrorKind::Unimplemented, reason)
         }
@@ -1980,8 +1976,7 @@ impl<VatId> RequestHook for Request<VatId> {
         let forked_promise2 = resolved.map(|_| Ok(())).and_then(|()| forked_promise2);
 
         let app_promise = Promise::from_future(
-            forked_promise2
-                .map_ok(|response| ::zap::capability::Response::new(Box::new(response))),
+            forked_promise2.map_ok(|response| ::zap::capability::Response::new(Box::new(response))),
         );
 
         ::zap::capability::RemotePromise {

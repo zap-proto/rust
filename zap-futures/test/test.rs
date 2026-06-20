@@ -24,9 +24,9 @@ zap::generated_code!(pub mod addressbook_zap);
 #[cfg(test)]
 mod tests {
     use crate::addressbook_zap::{address_book, person};
+    use futures::task::LocalSpawnExt;
     use zap::message;
     use zap_futures::serialize;
-    use futures::task::LocalSpawnExt;
 
     fn populate_address_book(address_book: address_book::Builder) {
         let mut people = address_book.init_people(2);
@@ -83,10 +83,10 @@ mod tests {
 
     #[test]
     fn write_queue_and_read_stream() {
-        use zap;
-        use zap_futures;
         use futures::future::FutureExt;
         use futures::stream::StreamExt;
+        use zap;
+        use zap_futures;
 
         use std::cell::Cell;
         use std::rc::Rc;
@@ -146,15 +146,16 @@ mod tests {
         let f0 = serialize::write_message(stream0, message)
             .map_err(|e| panic!("write error {e:?}"))
             .map(|_| ());
-        let f1 = serialize::try_read_message(stream1, zap::message::ReaderOptions::new())
-            .and_then(|maybe_message_reader| match maybe_message_reader {
+        let f1 = serialize::try_read_message(stream1, zap::message::ReaderOptions::new()).and_then(
+            |maybe_message_reader| match maybe_message_reader {
                 None => panic!("did not get message"),
                 Some(m) => {
                     let address_book = m.get_root::<address_book::Reader>().unwrap();
                     read_address_book(address_book);
                     futures::future::ready(Ok::<(), zap::Error>(()))
                 }
-            });
+            },
+        );
 
         pool.spawner().spawn_local(f0).unwrap();
         pool.run_until(f1).unwrap();
@@ -185,7 +186,6 @@ mod tests {
     fn static_lifetime_not_required_on_highlevel() {
         let (mut write, mut read) = async_byte_channel::channel();
         let _ = zap_futures::ReadStream::new(&mut read, message::ReaderOptions::default());
-        let _ =
-            zap_futures::write_queue::<_, message::Builder<message::HeapAllocator>>(&mut write);
+        let _ = zap_futures::write_queue::<_, message::Builder<message::HeapAllocator>>(&mut write);
     }
 }

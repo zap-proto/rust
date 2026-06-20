@@ -1,5 +1,5 @@
-use zap::dynamic_value;
 use fill_random_values::Filler;
+use zap::dynamic_value;
 
 zap::generated_code!(pub mod addressbook_zap);
 zap::generated_code!(pub mod fill_zap);

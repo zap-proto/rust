@@ -1396,7 +1396,7 @@ mod tests {
 
         let segment0: &[zap::Word] = &[
             zap::word(1, 0, 0, 0, 0x1f, 0, 0, 0), // list, inline composite, 3 words
-            zap::word(4, 0, 0, 0, 1, 0, 2, 0), // struct tag. 1 element, 1 word data, 2 pointers.
+            zap::word(4, 0, 0, 0, 1, 0, 2, 0),    // struct tag. 1 element, 1 word data, 2 pointers.
             zap::word(0xab, 0, 0, 0, 0, 0, 0, 0),
             zap::word(0x05, 0, 0, 0, 0x42, 0, 0, 0), // list pointer, offset 1, type = BYTE, length 8.
             zap::word(0, 0, 0, 0, 0, 0, 0, 0),
@@ -1753,8 +1753,9 @@ mod tests {
         }
 
         {
-            let result = root.get_any_pointer_field()
-                .get_as::<::zap::struct_list::Reader<'_,crate::test_zap::test_all_types::Owned>>();
+            let result = root
+                .get_any_pointer_field()
+                .get_as::<::zap::struct_list::Reader<'_, crate::test_zap::test_all_types::Owned>>();
 
             assert!(result.is_err());
         }
@@ -1953,8 +1954,8 @@ mod tests {
         use crate::test_zap::test_any_pointer;
 
         let words: &[zap::Word] = &[
-            zap::word(0, 0, 0, 0, 0, 0, 1, 0),   // struct, one pointers
-            zap::word(1, 0, 0, 0, 0xf, 0, 0, 0), // list, inline composite, one word
+            zap::word(0, 0, 0, 0, 0, 0, 1, 0),          // struct, one pointers
+            zap::word(1, 0, 0, 0, 0xf, 0, 0, 0),        // list, inline composite, one word
             zap::word(0, 0x80, 0xc2, 0xff, 0, 0, 0, 0), // large struct, but zero of them
             zap::word(0, 0, 0x20, 0, 0, 0, 0x22, 0),
         ];
@@ -2310,8 +2311,8 @@ mod tests {
     #[cfg_attr(miri, ignore)]
     #[test]
     fn test_raw_code_generator_request_path() {
-        use zap::serialize;
         use std::fs;
+        use zap::serialize;
 
         let raw_code_gen_request = fs::read(concat!(env!("OUT_DIR"), "/raw_code_gen_request.bin"))
             .expect("Failed to open raw code gen request file");

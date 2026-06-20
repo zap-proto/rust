@@ -341,10 +341,7 @@ pub mod message {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -425,10 +422,7 @@ pub mod message {
             !self.builder.is_pointer_field_null(0)
         }
         #[inline]
-        pub fn set_call(
-            &mut self,
-            value: crate::rpc_zap::call::Reader<'_>,
-        ) -> ::zap::Result<()> {
+        pub fn set_call(&mut self, value: crate::rpc_zap::call::Reader<'_>) -> ::zap::Result<()> {
             self.builder.set_data_field::<u16>(0, 2);
             ::zap::traits::SetterInput::set_pointer_builder(
                 self.builder.reborrow().get_pointer_field(0),
@@ -645,10 +639,7 @@ pub mod message {
             !self.builder.is_pointer_field_null(0)
         }
         #[inline]
-        pub fn set_join(
-            &mut self,
-            value: crate::rpc_zap::join::Reader<'_>,
-        ) -> ::zap::Result<()> {
+        pub fn set_join(&mut self, value: crate::rpc_zap::join::Reader<'_>) -> ::zap::Result<()> {
             self.builder.set_data_field::<u16>(0, 12);
             ::zap::traits::SetterInput::set_pointer_builder(
                 self.builder.reborrow().get_pointer_field(0),
@@ -746,9 +737,9 @@ pub mod message {
                         ::core::option::Option::None,
                     ),
                 )),
-                9 => ::core::result::Result::Ok(ObsoleteDelete(
-                    ::zap::any_pointer::Builder::new(self.builder.get_pointer_field(0)),
-                )),
+                9 => ::core::result::Result::Ok(ObsoleteDelete(::zap::any_pointer::Builder::new(
+                    self.builder.get_pointer_field(0),
+                ))),
                 10 => ::core::result::Result::Ok(Provide(
                     ::zap::traits::FromPointerBuilder::get_from_pointer(
                         self.builder.get_pointer_field(0),
@@ -1026,22 +1017,43 @@ pub mod message {
         ];
         pub fn get_field_types(index: u16) -> ::zap::introspect::Type {
             match index {
-        0 => <crate::rpc_zap::message::Owned as ::zap::introspect::Introspect>::introspect(),
-        1 => <crate::rpc_zap::exception::Owned as ::zap::introspect::Introspect>::introspect(),
-        2 => <crate::rpc_zap::call::Owned as ::zap::introspect::Introspect>::introspect(),
-        3 => <crate::rpc_zap::return_::Owned as ::zap::introspect::Introspect>::introspect(),
-        4 => <crate::rpc_zap::finish::Owned as ::zap::introspect::Introspect>::introspect(),
-        5 => <crate::rpc_zap::resolve::Owned as ::zap::introspect::Introspect>::introspect(),
-        6 => <crate::rpc_zap::release::Owned as ::zap::introspect::Introspect>::introspect(),
-        7 => <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(),
-        8 => <crate::rpc_zap::bootstrap::Owned as ::zap::introspect::Introspect>::introspect(),
-        9 => <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(),
-        10 => <crate::rpc_zap::provide::Owned as ::zap::introspect::Introspect>::introspect(),
-        11 => <crate::rpc_zap::accept::Owned as ::zap::introspect::Introspect>::introspect(),
-        12 => <crate::rpc_zap::join::Owned as ::zap::introspect::Introspect>::introspect(),
-        13 => <crate::rpc_zap::disembargo::Owned as ::zap::introspect::Introspect>::introspect(),
-        _ => ::zap::introspect::panic_invalid_field_index(index),
-      }
+                0 => {
+                    <crate::rpc_zap::message::Owned as ::zap::introspect::Introspect>::introspect()
+                }
+                1 => {
+                    <crate::rpc_zap::exception::Owned as ::zap::introspect::Introspect>::introspect(
+                    )
+                }
+                2 => <crate::rpc_zap::call::Owned as ::zap::introspect::Introspect>::introspect(),
+                3 => {
+                    <crate::rpc_zap::return_::Owned as ::zap::introspect::Introspect>::introspect()
+                }
+                4 => <crate::rpc_zap::finish::Owned as ::zap::introspect::Introspect>::introspect(),
+                5 => {
+                    <crate::rpc_zap::resolve::Owned as ::zap::introspect::Introspect>::introspect()
+                }
+                6 => {
+                    <crate::rpc_zap::release::Owned as ::zap::introspect::Introspect>::introspect()
+                }
+                7 => <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(),
+                8 => {
+                    <crate::rpc_zap::bootstrap::Owned as ::zap::introspect::Introspect>::introspect(
+                    )
+                }
+                9 => <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(),
+                10 => {
+                    <crate::rpc_zap::provide::Owned as ::zap::introspect::Introspect>::introspect()
+                }
+                11 => {
+                    <crate::rpc_zap::accept::Owned as ::zap::introspect::Introspect>::introspect()
+                }
+                12 => <crate::rpc_zap::join::Owned as ::zap::introspect::Introspect>::introspect(),
+                13 => {
+                    <crate::rpc_zap::disembargo::Owned as ::zap::introspect::Introspect>::introspect(
+                    )
+                }
+                _ => ::zap::introspect::panic_invalid_field_index(index),
+            }
         }
         pub fn get_annotation_types(
             child_index: Option<u16>,
@@ -1278,10 +1290,7 @@ pub mod bootstrap {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -1636,10 +1645,7 @@ pub mod call {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -2005,13 +2011,11 @@ pub mod call {
         pub struct Owned(());
         impl ::zap::introspect::Introspect for Owned {
             fn introspect() -> ::zap::introspect::Type {
-                ::zap::introspect::TypeVariant::Struct(
-                    ::zap::introspect::RawBrandedStructSchema {
-                        generic: &_private::RAW_SCHEMA,
-                        field_types: _private::get_field_types,
-                        annotation_types: _private::get_annotation_types,
-                    },
-                )
+                ::zap::introspect::TypeVariant::Struct(::zap::introspect::RawBrandedStructSchema {
+                    generic: &_private::RAW_SCHEMA,
+                    field_types: _private::get_field_types,
+                    annotation_types: _private::get_annotation_types,
+                })
                 .into()
             }
         }
@@ -2050,13 +2054,11 @@ pub mod call {
             fn from(reader: Reader<'a>) -> Self {
                 Self::Struct(::zap::dynamic_struct::Reader::new(
                     reader.reader,
-                    ::zap::schema::StructSchema::new(
-                        ::zap::introspect::RawBrandedStructSchema {
-                            generic: &_private::RAW_SCHEMA,
-                            field_types: _private::get_field_types,
-                            annotation_types: _private::get_annotation_types,
-                        },
-                    ),
+                    ::zap::schema::StructSchema::new(::zap::introspect::RawBrandedStructSchema {
+                        generic: &_private::RAW_SCHEMA,
+                        field_types: _private::get_field_types,
+                        annotation_types: _private::get_annotation_types,
+                    }),
                 ))
             }
         }
@@ -2146,13 +2148,11 @@ pub mod call {
             fn from(builder: Builder<'a>) -> Self {
                 Self::Struct(::zap::dynamic_struct::Builder::new(
                     builder.builder,
-                    ::zap::schema::StructSchema::new(
-                        ::zap::introspect::RawBrandedStructSchema {
-                            generic: &_private::RAW_SCHEMA,
-                            field_types: _private::get_field_types,
-                            annotation_types: _private::get_annotation_types,
-                        },
-                    ),
+                    ::zap::schema::StructSchema::new(::zap::introspect::RawBrandedStructSchema {
+                        generic: &_private::RAW_SCHEMA,
+                        field_types: _private::get_field_types,
+                        annotation_types: _private::get_annotation_types,
+                    }),
                 ))
             }
         }
@@ -2179,10 +2179,7 @@ pub mod call {
             ) -> ::zap::Result<Self> {
                 ::core::result::Result::Ok(
                     builder
-                        .get_struct(
-                            <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                            default,
-                        )?
+                        .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                         .into(),
                 )
             }
@@ -2242,9 +2239,9 @@ pub mod call {
                 match self.builder.get_data_field::<u16>(3) {
                     0 => ::core::result::Result::Ok(Caller(())),
                     1 => ::core::result::Result::Ok(Yourself(())),
-                    2 => ::core::result::Result::Ok(ThirdParty(
-                        ::zap::any_pointer::Builder::new(self.builder.get_pointer_field(2)),
-                    )),
+                    2 => ::core::result::Result::Ok(ThirdParty(::zap::any_pointer::Builder::new(
+                        self.builder.get_pointer_field(2),
+                    ))),
                     x => ::core::result::Result::Err(::zap::NotInSchema(x)),
                 }
             }
@@ -2332,10 +2329,7 @@ pub mod call {
                 match index {
                     0 => <() as ::zap::introspect::Introspect>::introspect(),
                     1 => <() as ::zap::introspect::Introspect>::introspect(),
-                    2 => {
-                        <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(
-                        )
-                    }
+                    2 => <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(),
                     _ => ::zap::introspect::panic_invalid_field_index(index),
                 }
             }
@@ -2585,10 +2579,7 @@ pub mod return_ {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -2927,17 +2918,22 @@ pub mod return_ {
         ];
         pub fn get_field_types(index: u16) -> ::zap::introspect::Type {
             match index {
-        0 => <u32 as ::zap::introspect::Introspect>::introspect(),
-        1 => <bool as ::zap::introspect::Introspect>::introspect(),
-        2 => <crate::rpc_zap::payload::Owned as ::zap::introspect::Introspect>::introspect(),
-        3 => <crate::rpc_zap::exception::Owned as ::zap::introspect::Introspect>::introspect(),
-        4 => <() as ::zap::introspect::Introspect>::introspect(),
-        5 => <() as ::zap::introspect::Introspect>::introspect(),
-        6 => <u32 as ::zap::introspect::Introspect>::introspect(),
-        7 => <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(),
-        8 => <bool as ::zap::introspect::Introspect>::introspect(),
-        _ => ::zap::introspect::panic_invalid_field_index(index),
-      }
+                0 => <u32 as ::zap::introspect::Introspect>::introspect(),
+                1 => <bool as ::zap::introspect::Introspect>::introspect(),
+                2 => {
+                    <crate::rpc_zap::payload::Owned as ::zap::introspect::Introspect>::introspect()
+                }
+                3 => {
+                    <crate::rpc_zap::exception::Owned as ::zap::introspect::Introspect>::introspect(
+                    )
+                }
+                4 => <() as ::zap::introspect::Introspect>::introspect(),
+                5 => <() as ::zap::introspect::Introspect>::introspect(),
+                6 => <u32 as ::zap::introspect::Introspect>::introspect(),
+                7 => <::zap::any_pointer::Owned as ::zap::introspect::Introspect>::introspect(),
+                8 => <bool as ::zap::introspect::Introspect>::introspect(),
+                _ => ::zap::introspect::panic_invalid_field_index(index),
+            }
         }
         pub fn get_annotation_types(
             child_index: Option<u16>,
@@ -3143,10 +3139,7 @@ pub mod finish {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -3507,10 +3500,7 @@ pub mod resolve {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -3898,10 +3888,7 @@ pub mod release {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -4209,10 +4196,7 @@ pub mod disembargo {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -4378,13 +4362,11 @@ pub mod disembargo {
         pub struct Owned(());
         impl ::zap::introspect::Introspect for Owned {
             fn introspect() -> ::zap::introspect::Type {
-                ::zap::introspect::TypeVariant::Struct(
-                    ::zap::introspect::RawBrandedStructSchema {
-                        generic: &_private::RAW_SCHEMA,
-                        field_types: _private::get_field_types,
-                        annotation_types: _private::get_annotation_types,
-                    },
-                )
+                ::zap::introspect::TypeVariant::Struct(::zap::introspect::RawBrandedStructSchema {
+                    generic: &_private::RAW_SCHEMA,
+                    field_types: _private::get_field_types,
+                    annotation_types: _private::get_annotation_types,
+                })
                 .into()
             }
         }
@@ -4423,13 +4405,11 @@ pub mod disembargo {
             fn from(reader: Reader<'a>) -> Self {
                 Self::Struct(::zap::dynamic_struct::Reader::new(
                     reader.reader,
-                    ::zap::schema::StructSchema::new(
-                        ::zap::introspect::RawBrandedStructSchema {
-                            generic: &_private::RAW_SCHEMA,
-                            field_types: _private::get_field_types,
-                            annotation_types: _private::get_annotation_types,
-                        },
-                    ),
+                    ::zap::schema::StructSchema::new(::zap::introspect::RawBrandedStructSchema {
+                        generic: &_private::RAW_SCHEMA,
+                        field_types: _private::get_field_types,
+                        annotation_types: _private::get_annotation_types,
+                    }),
                 ))
             }
         }
@@ -4515,13 +4495,11 @@ pub mod disembargo {
             fn from(builder: Builder<'a>) -> Self {
                 Self::Struct(::zap::dynamic_struct::Builder::new(
                     builder.builder,
-                    ::zap::schema::StructSchema::new(
-                        ::zap::introspect::RawBrandedStructSchema {
-                            generic: &_private::RAW_SCHEMA,
-                            field_types: _private::get_field_types,
-                            annotation_types: _private::get_annotation_types,
-                        },
-                    ),
+                    ::zap::schema::StructSchema::new(::zap::introspect::RawBrandedStructSchema {
+                        generic: &_private::RAW_SCHEMA,
+                        field_types: _private::get_field_types,
+                        annotation_types: _private::get_annotation_types,
+                    }),
                 ))
             }
         }
@@ -4548,10 +4526,7 @@ pub mod disembargo {
             ) -> ::zap::Result<Self> {
                 ::core::result::Result::Ok(
                     builder
-                        .get_struct(
-                            <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                            default,
-                        )?
+                        .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                         .into(),
                 )
             }
@@ -4927,10 +4902,7 @@ pub mod provide {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -5295,10 +5267,7 @@ pub mod accept {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -5649,10 +5618,7 @@ pub mod join {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -6021,10 +5987,7 @@ pub mod message_target {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -6194,10 +6157,8 @@ pub mod message_target {
         ImportedCap(u32),
         PromisedAnswer(A0),
     }
-    pub type WhichReader<'a> =
-        Which<::zap::Result<crate::rpc_zap::promised_answer::Reader<'a>>>;
-    pub type WhichBuilder<'a> =
-        Which<::zap::Result<crate::rpc_zap::promised_answer::Builder<'a>>>;
+    pub type WhichReader<'a> = Which<::zap::Result<crate::rpc_zap::promised_answer::Reader<'a>>>;
+    pub type WhichBuilder<'a> = Which<::zap::Result<crate::rpc_zap::promised_answer::Builder<'a>>>;
 }
 
 pub mod payload {
@@ -6310,9 +6271,8 @@ pub mod payload {
         #[inline]
         pub fn get_cap_table(
             self,
-        ) -> ::zap::Result<
-            ::zap::struct_list::Reader<'a, crate::rpc_zap::cap_descriptor::Owned>,
-        > {
+        ) -> ::zap::Result<::zap::struct_list::Reader<'a, crate::rpc_zap::cap_descriptor::Owned>>
+        {
             ::zap::traits::FromPointerReader::get_from_pointer(
                 &self.reader.get_pointer_field(1),
                 ::core::option::Option::None,
@@ -6375,10 +6335,7 @@ pub mod payload {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -6427,9 +6384,8 @@ pub mod payload {
         #[inline]
         pub fn get_cap_table(
             self,
-        ) -> ::zap::Result<
-            ::zap::struct_list::Builder<'a, crate::rpc_zap::cap_descriptor::Owned>,
-        > {
+        ) -> ::zap::Result<::zap::struct_list::Builder<'a, crate::rpc_zap::cap_descriptor::Owned>>
+        {
             ::zap::traits::FromPointerBuilder::get_from_pointer(
                 self.builder.get_pointer_field(1),
                 ::core::option::Option::None,
@@ -6451,10 +6407,7 @@ pub mod payload {
             self,
             size: u32,
         ) -> ::zap::struct_list::Builder<'a, crate::rpc_zap::cap_descriptor::Owned> {
-            ::zap::traits::FromPointerBuilder::init_pointer(
-                self.builder.get_pointer_field(1),
-                size,
-            )
+            ::zap::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(1), size)
         }
         #[inline]
         pub fn has_cap_table(&self) -> bool {
@@ -6761,10 +6714,7 @@ pub mod cap_descriptor {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -7202,9 +7152,8 @@ pub mod promised_answer {
         #[inline]
         pub fn get_transform(
             self,
-        ) -> ::zap::Result<
-            ::zap::struct_list::Reader<'a, crate::rpc_zap::promised_answer::op::Owned>,
-        > {
+        ) -> ::zap::Result<::zap::struct_list::Reader<'a, crate::rpc_zap::promised_answer::op::Owned>>
+        {
             ::zap::traits::FromPointerReader::get_from_pointer(
                 &self.reader.get_pointer_field(0),
                 ::core::option::Option::None,
@@ -7267,10 +7216,7 @@ pub mod promised_answer {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -7336,12 +7282,8 @@ pub mod promised_answer {
         pub fn init_transform(
             self,
             size: u32,
-        ) -> ::zap::struct_list::Builder<'a, crate::rpc_zap::promised_answer::op::Owned>
-        {
-            ::zap::traits::FromPointerBuilder::init_pointer(
-                self.builder.get_pointer_field(0),
-                size,
-            )
+        ) -> ::zap::struct_list::Builder<'a, crate::rpc_zap::promised_answer::op::Owned> {
+            ::zap::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(0), size)
         }
         #[inline]
         pub fn has_transform(&self) -> bool {
@@ -7455,13 +7397,11 @@ pub mod promised_answer {
         pub struct Owned(());
         impl ::zap::introspect::Introspect for Owned {
             fn introspect() -> ::zap::introspect::Type {
-                ::zap::introspect::TypeVariant::Struct(
-                    ::zap::introspect::RawBrandedStructSchema {
-                        generic: &_private::RAW_SCHEMA,
-                        field_types: _private::get_field_types,
-                        annotation_types: _private::get_annotation_types,
-                    },
-                )
+                ::zap::introspect::TypeVariant::Struct(::zap::introspect::RawBrandedStructSchema {
+                    generic: &_private::RAW_SCHEMA,
+                    field_types: _private::get_field_types,
+                    annotation_types: _private::get_annotation_types,
+                })
                 .into()
             }
         }
@@ -7500,13 +7440,11 @@ pub mod promised_answer {
             fn from(reader: Reader<'a>) -> Self {
                 Self::Struct(::zap::dynamic_struct::Reader::new(
                     reader.reader,
-                    ::zap::schema::StructSchema::new(
-                        ::zap::introspect::RawBrandedStructSchema {
-                            generic: &_private::RAW_SCHEMA,
-                            field_types: _private::get_field_types,
-                            annotation_types: _private::get_annotation_types,
-                        },
-                    ),
+                    ::zap::schema::StructSchema::new(::zap::introspect::RawBrandedStructSchema {
+                        generic: &_private::RAW_SCHEMA,
+                        field_types: _private::get_field_types,
+                        annotation_types: _private::get_annotation_types,
+                    }),
                 ))
             }
         }
@@ -7588,13 +7526,11 @@ pub mod promised_answer {
             fn from(builder: Builder<'a>) -> Self {
                 Self::Struct(::zap::dynamic_struct::Builder::new(
                     builder.builder,
-                    ::zap::schema::StructSchema::new(
-                        ::zap::introspect::RawBrandedStructSchema {
-                            generic: &_private::RAW_SCHEMA,
-                            field_types: _private::get_field_types,
-                            annotation_types: _private::get_annotation_types,
-                        },
-                    ),
+                    ::zap::schema::StructSchema::new(::zap::introspect::RawBrandedStructSchema {
+                        generic: &_private::RAW_SCHEMA,
+                        field_types: _private::get_field_types,
+                        annotation_types: _private::get_annotation_types,
+                    }),
                 ))
             }
         }
@@ -7621,10 +7557,7 @@ pub mod promised_answer {
             ) -> ::zap::Result<Self> {
                 ::core::result::Result::Ok(
                     builder
-                        .get_struct(
-                            <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                            default,
-                        )?
+                        .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                         .into(),
                 )
             }
@@ -7940,10 +7873,7 @@ pub mod third_party_cap_descriptor {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -8216,8 +8146,7 @@ pub mod exception {
         #[inline]
         pub fn get_type(
             self,
-        ) -> ::core::result::Result<crate::rpc_zap::exception::Type, ::zap::NotInSchema>
-        {
+        ) -> ::core::result::Result<crate::rpc_zap::exception::Type, ::zap::NotInSchema> {
             ::core::convert::TryInto::try_into(self.reader.get_data_field::<u16>(2))
         }
         #[inline]
@@ -8284,10 +8213,7 @@ pub mod exception {
         ) -> ::zap::Result<Self> {
             ::core::result::Result::Ok(
                 builder
-                    .get_struct(
-                        <Self as ::zap::traits::HasStructSize>::STRUCT_SIZE,
-                        default,
-                    )?
+                    .get_struct(<Self as ::zap::traits::HasStructSize>::STRUCT_SIZE, default)?
                     .into(),
             )
         }
@@ -8327,10 +8253,7 @@ pub mod exception {
             )
         }
         #[inline]
-        pub fn set_reason(
-            &mut self,
-            value: impl ::zap::traits::SetterInput<::zap::text::Owned>,
-        ) {
+        pub fn set_reason(&mut self, value: impl ::zap::traits::SetterInput<::zap::text::Owned>) {
             ::zap::traits::SetterInput::set_pointer_builder(
                 self.builder.reborrow().get_pointer_field(0),
                 value,
@@ -8365,8 +8288,7 @@ pub mod exception {
         #[inline]
         pub fn get_type(
             self,
-        ) -> ::core::result::Result<crate::rpc_zap::exception::Type, ::zap::NotInSchema>
-        {
+        ) -> ::core::result::Result<crate::rpc_zap::exception::Type, ::zap::NotInSchema> {
             ::core::convert::TryInto::try_into(self.builder.get_data_field::<u16>(2))
         }
         #[inline]
@@ -8381,10 +8303,7 @@ pub mod exception {
             )
         }
         #[inline]
-        pub fn set_trace(
-            &mut self,
-            value: impl ::zap::traits::SetterInput<::zap::text::Owned>,
-        ) {
+        pub fn set_trace(&mut self, value: impl ::zap::traits::SetterInput<::zap::text::Owned>) {
             ::zap::traits::SetterInput::set_pointer_builder(
                 self.builder.reborrow().get_pointer_field(1),
                 value,
@@ -8517,13 +8436,15 @@ pub mod exception {
         ];
         pub fn get_field_types(index: u16) -> ::zap::introspect::Type {
             match index {
-        0 => <::zap::text::Owned as ::zap::introspect::Introspect>::introspect(),
-        1 => <bool as ::zap::introspect::Introspect>::introspect(),
-        2 => <u16 as ::zap::introspect::Introspect>::introspect(),
-        3 => <crate::rpc_zap::exception::Type as ::zap::introspect::Introspect>::introspect(),
-        4 => <::zap::text::Owned as ::zap::introspect::Introspect>::introspect(),
-        _ => ::zap::introspect::panic_invalid_field_index(index),
-      }
+                0 => <::zap::text::Owned as ::zap::introspect::Introspect>::introspect(),
+                1 => <bool as ::zap::introspect::Introspect>::introspect(),
+                2 => <u16 as ::zap::introspect::Introspect>::introspect(),
+                3 => {
+                    <crate::rpc_zap::exception::Type as ::zap::introspect::Introspect>::introspect()
+                }
+                4 => <::zap::text::Owned as ::zap::introspect::Introspect>::introspect(),
+                _ => ::zap::introspect::panic_invalid_field_index(index),
+            }
         }
         pub fn get_annotation_types(
             child_index: Option<u16>,

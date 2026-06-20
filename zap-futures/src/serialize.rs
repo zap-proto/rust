@@ -23,9 +23,9 @@
 //!
 //! Each message is preceded by a segment table indicating the size of its segments.
 
+use futures_util::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use zap::serialize::{OwnedSegments, SegmentLengthsBuilder};
 use zap::{message, Error, OutputSegments, Result};
-use futures_util::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 /// Asynchronously reads a message from `reader`.
 pub async fn read_message<R>(
