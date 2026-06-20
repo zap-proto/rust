@@ -1,7 +1,7 @@
 # ZAP benchmark suite
 
 Canonical end-to-end performance harness for the ZAP Rust SDK. Runs the
-three classic Cap'n-Proto-derived test cases — **carsales** (random
+three classic serialization-codec test cases — **carsales** (random
 struct trees with sums), **catrank** (search-result re-ranking), **eval**
 (arithmetic expression evaluator) — across:
 

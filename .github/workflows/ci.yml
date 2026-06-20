@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   schedule:
     # run weekly
     - cron: '0 0 * * 0'
@@ -30,9 +30,7 @@ jobs:
         toolchain: ${{ matrix.rust }}
 
     - name: Install ZAP
-      run: |
-          export DEBIAN_FRONTEND=noninteractive
-          sudo apt-get install -y zap libzap-dev
+      uses: ./.github/actions/install-zap
 
     - name: Test feature flags
       run: |
@@ -75,9 +73,7 @@ jobs:
         run: cargo miri setup
 
       - name: Install ZAP
-        run: |
-            export DEBIAN_FRONTEND=noninteractive
-            sudo apt-get install -y zap libzap-dev
+        uses: ./.github/actions/install-zap
 
       - name: Test default features
         run: cargo miri test --package zap --package zapc-test
@@ -112,9 +108,7 @@ jobs:
         toolchain: ${{ env.minrust }}
 
     - name: Install ZAP
-      run: |
-          export DEBIAN_FRONTEND=noninteractive
-          sudo apt-get install -y zap libzap-dev
+      uses: ./.github/actions/install-zap
 
     - name: Test feature flags
       run: |
@@ -143,16 +137,13 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - name: Install ZAP
-        run: |
-            export DEBIAN_FRONTEND=noninteractive
-            sudo apt-get install -y zap libzap-dev
-
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly-2025-12-02
           components: clippy
+      - name: Install ZAP
+        uses: ./.github/actions/install-zap
       - uses: actions-rs-plus/clippy-check@v2
         with:
           args: --all --all-targets

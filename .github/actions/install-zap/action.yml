@@ -1,0 +1,59 @@
+name: Install ZAP schema compiler
+description: >-
+  Build and install the canonical `zap` schema front-end from zap-proto/cpp-core
+  (the C++ compiler that `zapc::CompilerCommand` shells out to as `zap compile`).
+  `zapc/test`, the examples, and the benchmark need this binary on PATH at build
+  time. There is no `zap` apt package — the front-end is built from source and
+  cached so subsequent runs are a no-op.
+
+inputs:
+  ref:
+    description: zap-proto/cpp-core git ref to build (branch, tag, or SHA).
+    required: false
+    default: zap-rebrand
+
+runs:
+  using: composite
+  steps:
+    - name: Cache zap front-end
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: /usr/local/bin/zap
+        key: zap-frontend-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ref }}
+
+    - name: Build deps
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt-get update
+        # cpp-core is C++23 + libc++ (KJ coroutines); clang-18+/libc++ required.
+        sudo apt-get install --no-install-recommends -y \
+          cmake ninja-build clang-18 libc++-18-dev libc++abi-18-dev zlib1g-dev
+
+    - name: Build and install zap from zap-proto/cpp-core
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        CC: clang-18
+        CXX: clang++-18
+      run: |
+        set -euo pipefail
+        src="$RUNNER_TEMP/cpp-core"
+        git clone --depth 1 --branch "${{ inputs.ref }}" \
+          https://github.com/zap-proto/cpp-core.git "$src"
+        cmake -S "$src/c++" -B "$src/c++/build" -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTING=OFF \
+          -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
+          -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++"
+        # `zap_tool` (OUTPUT_NAME=zap) is the schema front-end; build the libs it
+        # links plus the codegen plugins it execs, then install to /usr/local.
+        cmake --build "$src/c++/build" --target zap_tool zapc_cpp zapc_zap
+        sudo cmake --install "$src/c++/build"
+        sudo ldconfig
+
+    - name: Verify
+      shell: bash
+      run: zap --version
