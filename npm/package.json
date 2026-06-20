@@ -1,13 +1,30 @@
 {
   "name": "@zap-proto/zapc",
-  "version": "0.25.0",
+  "version": "1.0.0",
   "description": "ZAP schema compiler — code generation for the ZAP wire format. Downloads the canonical zap-proto/rust zapc binary for your platform.",
-  "bin": { "zapc": "bin/zapc.js" },
-  "scripts": { "postinstall": "node install.js" },
-  "os": ["darwin", "linux"],
-  "cpu": ["x64", "arm64"],
-  "files": ["bin/zapc.js", "install.js"],
-  "repository": { "type": "git", "url": "github:zap-proto/rust", "directory": "npm" },
+  "bin": {
+    "zapc": "bin/zapc.js"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "files": [
+    "bin/zapc.js",
+    "install.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "github:zap-proto/rust",
+    "directory": "npm"
+  },
   "homepage": "https://zap-proto.dev",
   "license": "MIT"
 }
