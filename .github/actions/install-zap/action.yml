@@ -48,11 +48,15 @@ runs:
           -DBUILD_TESTING=OFF \
           -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
           -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++"
-        # `zap_tool` (OUTPUT_NAME=zap) is the schema front-end; build the libs it
-        # links plus the codegen plugins it execs, then install to /usr/local.
-        cmake --build "$src/c++/build" --target zap_tool zapc_cpp zapc_zap
-        sudo cmake --install "$src/c++/build"
-        sudo ldconfig
+        # `zap_tool` (OUTPUT_NAME=zap) is the schema front-end. rust's zapc execs
+        # `zap compile -o-` for the raw code-generator request and consumes it with
+        # its own cargo-built backend, so ONLY the `zap` binary is needed on PATH.
+        # Copy it directly — `cmake --install` fails trying to honor install() rules
+        # for lib/header targets that this partial build didn't produce.
+        cmake --build "$src/c++/build" --target zap_tool
+        zapbin="$(find "$src/c++/build" -name zap -type f -perm -u+x | head -1)"
+        test -n "$zapbin" || { echo "zap binary not found in cpp-core build tree" >&2; exit 1; }
+        sudo install -m755 "$zapbin" /usr/local/bin/zap
 
     - name: Verify
       shell: bash
