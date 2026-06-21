@@ -1,0 +1,17 @@
+rust — part of the ZAP Protocol (github.com/zap-proto)
+
+This product includes software developed by the Cap'n Proto project:
+  capnproto-rust — https://github.com/capnproto/capnproto-rust
+  Copyright (c) 2013-2017 Sandstorm Development Group, Inc. and contributors
+  Copyright (c) 2017 David Renshaw (dwrensha) and contributors
+  Licensed under the MIT License (see LICENSE).
+
+Portions of the capability layer (zap/src/capability.rs and
+zap/src/private/capability.rs) are derived from Cap'n Proto and remain
+Copyright (c) 2013-2015 Sandstorm Development Group, Inc. and contributors.
+
+ZAP is a derivative work: a brand-neutral fork of capnproto-rust adding the
+ZAP zero-copy wire runtime, the Rust code-generation backend driven by the
+`zap` schema compiler, and a Level-1 capability RPC stack.
+Modifications Copyright (c) 2018-2025 Lux Industries Inc.
+and the zap-proto/rust contributors.
