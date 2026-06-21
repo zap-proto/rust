@@ -1,6 +1,6 @@
 {
   "name": "@zap-proto/zapc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ZAP schema compiler — code generation for the ZAP wire format. Downloads the canonical zap-proto/rust zapc binary for your platform.",
   "bin": {
     "zapc": "bin/zapc.js"
